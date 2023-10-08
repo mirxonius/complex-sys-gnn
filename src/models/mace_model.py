@@ -12,7 +12,7 @@ class MaceNet(torch.nn.Module):
     def __init__(self,
                  mace_params:dict,
                  final_prediction_irreps:str|o3.Irreps = "1x0e",
-                 aggregate = True
+                 aggregate:bool = True
                 ):
         super().__init__()
         second_layer_params = {**mace_params}
