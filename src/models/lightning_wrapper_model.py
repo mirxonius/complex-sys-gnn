@@ -13,7 +13,11 @@ from models.gat_model import GATModel
 from models.gate_equiv_model import GateEquivariantModel
 from models.mace_model import MaceModel
 
-
+model_dict = {
+    SupportedModels.mace_model.value:MaceModel,
+    SupportedModels.gat_model.value:GATModel,
+    SupportedModels.gate_equiv_model.value:GateEquivariantModel
+}
 
 
 class LightningModelWrapper(pl.LightningModule):
@@ -26,10 +30,13 @@ class LightningModelWrapper(pl.LightningModule):
                 target_idx:int|list[int]=0
                   ):
         super().__init__()
+        try:
+            self.model = model_dict[model_name](**model_params)
+        except:
+            print(f"{model_name} is not a supported model.")
+
         if compile:
-            self.model = torch.compile(MaceNet(mace_params))
-        else:
-            self.model = MaceNet(mace_params)
+            self.model = torch.compile(self.model)
         
         if isinstance(target_idx,Iterable):
             self.target_idx = torch.LongTensor(target_idx)
