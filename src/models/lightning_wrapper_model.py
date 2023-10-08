@@ -53,7 +53,7 @@ class LightningModelWrapper(pl.LightningModule):
         return self.model(graph)
     
     def _step(self, graph,step_type="train"):
-        prediction = torch.abs(self.forward(graph))
+        prediction = self.forward(graph)
         loss=self.loss_fn(prediction,graph.y[:,self.target_idx])
         metric_dict = self.metric_calculator(prediction,graph.y[:,self.target_idx],step_type)
         metric_dict.update({step_type+"_MSE_loss":loss})
