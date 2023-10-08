@@ -19,7 +19,8 @@ model_dict = {
     SupportedModels.gate_equiv_model.value:GateEquivariantModel
 }
 
-
+#TODO: add comments and test code
+#NOTE: maybe change scheduler to one_cycle_lr
 class LightningModelWrapper(pl.LightningModule):
 
     def __init__(self,
