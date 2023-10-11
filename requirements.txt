@@ -1,5 +1,5 @@
 torch>=2.0.1
-torchmetric>=1.0.1
+torchmetrics>=1.0.1
 torch-geometric==2.1
 torch-scatter==2.1.1.
 torch-cluster==1.6.1+pt20cu117
