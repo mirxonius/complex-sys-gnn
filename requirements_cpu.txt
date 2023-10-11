@@ -2,7 +2,7 @@ torch>=2.0.1
 torchmetrics>=1.0.1
 torch-geometric==2.1
 torch-scatter>=2.1.0.
-torch-cluster==1.6.1+pt20cu117
+torch-cluster==1.6.2+pt21cpu
 pytorch-lightning>=2.0.3
 mace-layer @ git+https://github.com/ACEsuit/mace-layer.git
 e3nn==0.4.4
