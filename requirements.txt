@@ -1,8 +1,8 @@
 torch>=2.0.1
 torchmetric>=1.0.1
-torch-geometric=2.1
-torch-scatter=2.1.1.
-torch-cluster=1.6.1+pt20cu117
-pytorch-lightning=2.0.3
-mace-layer=0.0.0
-e3nn=0.4.4
+torch-geometric==2.1
+torch-scatter==2.1.1.
+torch-cluster==1.6.1+pt20cu117
+pytorch-lightning>=2.0.3
+mace-layer==0.0.0
+e3nn==0.4.4
