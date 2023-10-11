@@ -21,11 +21,40 @@ class O3AttentionLayer(torch.nn.Module):
                  input_irreps:str|o3.Irreps,
                  key_irreps:str|o3.Irreps,
                  query_irreps:str|o3.Irreps,
-                 value_irreps:str|o3.Irreps                
+                 value_irreps:str|o3.Irreps,
+                 lmax:int = 2             
                  ) -> None:
         super().__init__()
+        #NOTE: treba dodati linear transformacije za 
+        # k,q,v transf.
+        irreps_sph = o3.Irreps.spherical_harmonics(lmax=lmax)
+        self.tp_value = o3.FullyConnectedTensorProduct(
+            irreps_in1=input_irreps,
+            irreps_in2=irreps_sph,
+            irreps_out=value_irreps,
+            shared_weights=False
+            )
+        self.tp_key = o3.FullyConnectedTensorProduct(           
+            irreps_in1=input_irreps,
+            irreps_in2=irreps_sph,
+            irreps_out=key_irreps,
+            shared_weights=False
+            )
+        self.tp_query = o3.FullyConnectedTensorProduct(
+            irreps_in1=query_irreps,
+            irreps_in2=irreps_sph,
+            irreps_out=key_irreps,
+            shared_weights=False           
+        )
+        #Calculates similarity metric between keys and queries
+        self.similarity_tp = o3.FullyConnectedTensorProduct(
+            irreps_in1=query_irreps,
+            irreps_in2=key_irreps,
+            irreps_out="0e"
+        )
 
-        
+
+
     def forward(self,
                 
                 ):
