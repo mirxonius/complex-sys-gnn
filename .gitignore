@@ -1,9 +1,10 @@
 *ipynb
 notebooks/
-data/*
 !data/
-logs/*
+data/*
 !logs/
+logs/*
+
 
 
 
