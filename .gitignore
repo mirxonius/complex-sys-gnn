@@ -2,5 +2,7 @@
 notebooks/
 data/*
 !data/
+logs/*
+!logs/
 
 
