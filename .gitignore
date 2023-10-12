@@ -1,5 +1,6 @@
 *ipynb
-notebooks
-!data/
+notebooks/
 data/*
+!data/
+
 
