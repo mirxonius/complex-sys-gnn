@@ -40,12 +40,7 @@ class O3AttentionLayer(torch.nn.Module):
             irreps_out=key_irreps,
             shared_weights=False
             )
-        self.tp_query = o3.FullyConnectedTensorProduct(
-            irreps_in1=query_irreps,
-            irreps_in2=irreps_sph,
-            irreps_out=key_irreps,
-            shared_weights=False           
-        )
+
         #Calculates similarity metric between keys and queries
         self.similarity_tp = o3.FullyConnectedTensorProduct(
             irreps_in1=query_irreps,
