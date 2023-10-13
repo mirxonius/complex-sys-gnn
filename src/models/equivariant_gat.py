@@ -3,7 +3,7 @@ from e3nn import o3
 from torch_geometric.data import Data
 
 from blocks import O3AttentionLayer
-from utils.model_utils import MeanOnGraph
+from utils.model_utils import MeanOnGraph, IdentityOnGraph
 
 
 class O3GraphAttentionNetwork(torch.nn.Module):
