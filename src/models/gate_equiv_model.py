@@ -7,7 +7,10 @@ from utils.model_utils import MeanOnGraph
 
 class GateEquivariantModel(torch.nn.Module):
     def __init__(
-        self, num_layers:int,final_prediction_irreps: str | o3.Irreps = "1x0e", aggregate: bool = True
+        self,
+        num_layers: int,
+        final_prediction_irreps: str | o3.Irreps = "1x0e",
+        aggregate: bool = True,
     ):
         pass
 
