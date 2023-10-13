@@ -26,6 +26,16 @@ class MeanOnGraph(torch.nn.Module):
         )
 
 
+class IdentityOnGraph(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(
+        self, input: torch.Tensor, batch_index: torch.LongTensor = None
+    ) -> torch.Tensor:
+        return input
+
+
 def make_fcnn(
     in_shape,
     hidden_shape,
