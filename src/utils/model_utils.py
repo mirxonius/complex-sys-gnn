@@ -2,6 +2,21 @@ import torch
 from torch_scatter import scatter
 
 
+def softmax_on_graph(
+    input: torch.Tensor, index: torch.LongTensor, dim: int = 0
+) -> torch.Tensor:
+    """
+    Performs numerically stable softmax on graph i.e.
+    aggregates messages from neighboring nodes where
+    the message weights are calculated using softmax.
+    """
+    stabilizer = scatter(src=input, index=index, dim=dim, reduce="max")
+    exp = torch.exp(input - stabilizer[index])
+    Z = scatter(src=exp, index=index, dim=dim, reduce="sum")
+    Z[Z == 0] = 1
+    return exp / Z[index]
+
+
 class Mean(torch.nn.Module):
     def __init__(self, dim=0, keepdim=False) -> None:
         super().__init__()

@@ -41,6 +41,4 @@ class O3GraphAttentionNetwork(torch.nn.Module):
         for layer in self.layers:
             updated_node_features = layer(graph)
             graph.x = updated_node_features
-            print(updated_node_features)
-            print(graph)
         return self.aggregate(updated_node_features, batch_index=graph.batch)

@@ -4,6 +4,8 @@ from e3nn.util.jit import compile_mode
 from torch_scatter import scatter
 from torch_geometric.data import Data
 
+from utils.model_utils import softmax_on_graph
+
 
 @compile_mode("script")
 class O3EquivConv(torch.nn.Module):
@@ -88,13 +90,13 @@ class O3AttentionLayer(torch.nn.Module):
         values = self.tp_value(
             graph.x[src], vec_sph, self.value_basis_net(radial_embedding)
         )
-        # TODO: Treba numerički stabilizirati softmax
-        exp = self.similarity_tp(query[dst], key)
-        exp = exp.exp()  # *edge_weight_cutoff[:, None] *
 
-        Z = scatter(exp, dst, dim=0, dim_size=len(graph.x))
-        Z[Z == 0] = 1
-        attn = exp / Z[dst]
+        attn_score = softmax_on_graph(
+            input=self.similarity_tp(query[dst], key), index=dst, dim=0
+        )
         return scatter(
-            src=attn.relu().sqrt() * values, index=dst, dim=0, dim_size=len(graph.x)
+            src=attn_score.relu().sqrt() * values,
+            index=dst,
+            dim=0,
+            dim_size=len(graph.x),
         )
