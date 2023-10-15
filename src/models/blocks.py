@@ -88,10 +88,10 @@ class O3AttentionLayer(torch.nn.Module):
         values = self.tp_value(
             graph.x[src], vec_sph, self.value_basis_net(radial_embedding)
         )
+        # TODO: Treba numerički stabilizirati softmax
+        exp = self.similarity_tp(query[dst], key)
+        exp = exp.exp()  # *edge_weight_cutoff[:, None] *
 
-        exp = self.similarity_tp(
-            query[dst], key
-        ).exp()  # *edge_weight_cutoff[:, None] *
         Z = scatter(exp, dst, dim=0, dim_size=len(graph.x))
         Z[Z == 0] = 1
         attn = exp / Z[dst]

@@ -2,7 +2,7 @@ import torch
 from e3nn import o3
 from torch_geometric.data import Data
 
-from blocks import O3AttentionLayer
+from .blocks import O3AttentionLayer
 from utils.model_utils import MeanOnGraph, IdentityOnGraph
 
 
@@ -16,7 +16,9 @@ class O3GraphAttentionNetwork(torch.nn.Module):
         lmax: int,
         num_basis: int,
         aggregate: bool = True,
+        max_radius: float = 2.5,
     ):
+        self.max_radius = max_radius
         super().__init__()
         self.aggregate = MeanOnGraph() if aggregate else IdentityOnGraph()
 
@@ -30,13 +32,15 @@ class O3GraphAttentionNetwork(torch.nn.Module):
                     value_irreps=hidden_irreps if i < num_layers - 1 else output_irreps,
                     lmax=lmax,
                     num_basis=num_basis,
+                    max_radius=self.max_radius,
                 )
             )
-        self.layers = torch.nn.ModuleList(*layers)
+        self.layers = torch.nn.ModuleList(layers)
 
     def forward(self, graph: Data) -> torch.Tensor:
-        updated_node_features = graph.x
         for layer in self.layers:
             updated_node_features = layer(graph)
             graph.x = updated_node_features
+            print(updated_node_features)
+            print(graph)
         return self.aggregate(updated_node_features, batch_index=graph.batch)
