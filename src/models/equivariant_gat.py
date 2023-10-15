@@ -18,7 +18,7 @@ class O3GraphAttentionNetwork(torch.nn.Module):
         aggregate: bool = True,
     ):
         super().__init__()
-        self.aggregate = MeanOnGraph() if aggregate else torch.nn.Identity()
+        self.aggregate = MeanOnGraph() if aggregate else IdentityOnGraph()
 
         layers = []
         for i in range(num_layers):

@@ -1,9 +1,10 @@
-*ipynb
+*.ipynb
 notebooks/
 !data/
 data/*
 !logs/
 logs/*
+__pycache__/
 
 
 

@@ -26,10 +26,11 @@ class O3AttentionLayer(torch.nn.Module):
         value_irreps: str | o3.Irreps,
         lmax: int = 2,
         num_basis: int = 32,
+        max_radius: float = 2.5,
     ) -> None:
         super().__init__()
         self.num_basis = num_basis
-
+        self.max_radius = max_radius
         self.irreps_sph = o3.Irreps.spherical_harmonics(lmax=lmax)
         self.tp_value = o3.FullyConnectedTensorProduct(
             irreps_in1=input_irreps,
@@ -53,12 +54,6 @@ class O3AttentionLayer(torch.nn.Module):
             act=torch.nn.functional.silu,
         )
 
-        self.tp_query = o3.FullyConnectedTensorProduct(
-            irreps_in1=query_irreps,
-            irreps_in2=self.irreps_sph,
-            irreps_out=key_irreps,
-            shared_weights=False,
-        )
         # Calculates similarity metric between keys and queries
         self.similarity_tp = o3.FullyConnectedTensorProduct(
             irreps_in1=query_irreps, irreps_in2=key_irreps, irreps_out="0e"
@@ -70,29 +65,36 @@ class O3AttentionLayer(torch.nn.Module):
 
     def forward(self, graph: Data):
         src, dst = graph.edge_index
-        vec = graph.pos[dst] - graph.pos[src]
+        vec = graph.pos[src] - graph.pos[dst]
         vec_len = vec.norm(dim=1)
 
         radial_embedding = math.soft_one_hot_linspace(
             vec_len,
             start=0.0,
-            end=2.5,
-            number_of_basis=self.num_basis,
-            basis="bessel",
+            end=self.max_radius,
+            number=self.num_basis,
+            basis="bessel",  # "bessel",
             cutoff=True,
         )
+        # edge_weight_cutoff = math.soft_unit_step(10 * (1 - vec_len / self.max_radius))
 
         radial_embedding = radial_embedding.mul(self.num_basis**0.5)
         vec_sph = o3.spherical_harmonics(
             self.irreps_sph, vec, normalize=True, normalization="component"
         )
+
         query = self.query_projection(graph.x)
         key = self.tp_key(graph.x[src], vec_sph, self.key_basis_net(radial_embedding))
         values = self.tp_value(
             graph.x[src], vec_sph, self.value_basis_net(radial_embedding)
         )
 
-        attn = self.similarity_tp(query[dst], key).exp()
-        Z = scatter(attn, dst, dim=0, dim_size=len(graph.x))
-        attn = attn / Z
-        return scatter(attn * values, dst, dim=0, dim_size=len(graph.x))
+        exp = self.similarity_tp(
+            query[dst], key
+        ).exp()  # *edge_weight_cutoff[:, None] *
+        Z = scatter(exp, dst, dim=0, dim_size=len(graph.x))
+        Z[Z == 0] = 1
+        attn = exp / Z[dst]
+        return scatter(
+            src=attn.relu().sqrt() * values, index=dst, dim=0, dim_size=len(graph.x)
+        )
