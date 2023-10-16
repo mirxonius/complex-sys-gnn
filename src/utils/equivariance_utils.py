@@ -15,7 +15,10 @@ def estimate_equivariance_SO3(
 ):
     """
     For a given function or module (Callable) and input,
-    this estimates whether the SO3 equivariance is satisfied.
+    this estimates whether the SO(3) equivariance is satisfied.
+    The proper equivaraince test implies integration over the
+    entire SO(3) group, so instead we estimate these integrals
+    with Monte Carlo methods.
     NOTE: FNot yet supported for data with edge_features/atributes.
     """
     if isinstance(input_irreps, str):
