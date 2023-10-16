@@ -15,11 +15,11 @@ def estimate_equivariance_SO3(
 ):
     """
     For a given function or module (Callable) and input,
-    this estimates whether the SO(3) equivariance is satisfied.
+    this estimates whether the SO(3) equivariance is satisfied  .
     The proper equivaraince test implies integration over the
     entire SO(3) group, so instead we estimate these integrals
     with Monte Carlo methods.
-    NOTE: FNot yet supported for data with edge_features/atributes.
+    NOTE: Not yet supported for data with edge_features/atributes.
     """
     if isinstance(input_irreps, str):
         input_irreps = o3.Irreps(input_irreps)
@@ -47,6 +47,6 @@ def estimate_equivariance_SO3(
         mean_abs_difference = torch.abs(output_before - output_after)
 
     return (
-        torch.allclose(mean_abs_difference, torch.tensor(0.0), atol=1e-4),
+        torch.allclose(mean_abs_difference, torch.tensor(0.0), atol=1e-4, rtol=1e-4),
         mean_abs_difference / num_samples,
     )
