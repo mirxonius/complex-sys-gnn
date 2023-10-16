@@ -11,12 +11,14 @@ from utils.metric_calc import RegressionMetricCalc
 
 from models.gat_model import GATModel
 from models.gate_equiv_model import GateEquivariantModel
-from models.mace_model import MaceModel
+from models.mace_model import MaceNet
+from models.equivariant_gat import O3GraphAttentionNetwork
 
 model_dict = {
-    SupportedModels.mace_model.value: MaceModel,
+    SupportedModels.mace_model.value: MaceNet,
     SupportedModels.gat_model.value: GATModel,
     SupportedModels.gate_equiv_model.value: GateEquivariantModel,
+    SupportedModels.equivariant_gat.value: O3GraphAttentionNetwork,
 }
 
 
