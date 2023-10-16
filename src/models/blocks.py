@@ -75,7 +75,7 @@ class O3AttentionLayer(torch.nn.Module):
             start=0.0,
             end=self.max_radius,
             number=self.num_basis,
-            basis="bessel",  # "bessel",
+            basis="bessel",
             cutoff=True,
         )
         # edge_weight_cutoff = math.soft_unit_step(10 * (1 - vec_len / self.max_radius))
