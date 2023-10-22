@@ -11,6 +11,7 @@ from utils.model_utils import softmax_on_graph
 class O3EquivConv(torch.nn.Module):
     def __init__(
         self,
+        irreps_in: str | o3.Irreps,
     ) -> None:
         super().__init__()
 

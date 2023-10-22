@@ -4,6 +4,9 @@ from torch_geometric.loader import DataLoader
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import TensorBoardLogger
 
+from config_defaults import SupportedModels
+from utils.setup_utils import set_up_model
+
 
 parser = ArgumentParser()
 parser.add_argument("--experiment_name", default="MACE", type=str)
@@ -11,6 +14,13 @@ parser.add_argument("--num_epochs", type=int, default=20)
 parser.add_argument("--lr", type=float, default=1e-3)
 parser.add_argument("--batch_size", type=int, default=32)
 parser.add_argument("--radius", type=float, default=None)
+parser.add_argument("--task", type=str)
+parser.add_argument("--model", type=str)
+parser.add_argument(
+    "--model_args_json",
+    type=str,
+    help=".json file containing model parameters, since they can be very long.",
+)
 
 
 log_dir = Path("..logs/")
@@ -18,7 +28,7 @@ log_dir = Path("..logs/")
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    model = NotImplemented
+    model = set_up_model(args.model, args._model_args_json)
 
     train_set = NotImplemented
     val_set = NotImplemented
