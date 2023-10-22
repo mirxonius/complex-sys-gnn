@@ -1,0 +1,15 @@
+{
+    "mace_params":{
+        "max_ell":3,
+        "correlation":3,
+        "n_dims_in":11,
+        "hidden_irreps":"16x0e + 16x1o + 16x2e",
+        "node_feats_irreps":"16x0e + 16x1o + 16x2e",
+        "edge_feats_irreps":"16x0e",
+        "avg_num_neighbors":10.0,
+        "use_sc":true
+    },
+    "final_prediction_irreps":"1x0e",
+    "aggregate":true
+
+}

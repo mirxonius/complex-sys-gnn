@@ -8,5 +8,4 @@
     "final_output_dim":1,
     "head_hidden_layers":3,
     "aggregate":true
-
 }
