@@ -17,7 +17,6 @@ class QM9_dataset(Dataset):
         self.transforms = transforms
         if isinstance(indices, Path) or isinstance(indices, str):
             indices = torch.load(indices)
-        assert isinstance(indices, Iterable), f"{type(indices)} must be an iterable."
         self.indices = (
             torch.arange(len(self.data), dtype=int) if indices is None else indices
         )

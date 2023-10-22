@@ -10,16 +10,8 @@ from config_defaults import SupportedModels
 from utils.metric_calc import RegressionMetricCalc
 
 from models.gat_model import GATModel
-from models.gate_equiv_model import GateEquivariantModel
 from models.mace_model import MaceNet
 from models.equivariant_gat import O3GraphAttentionNetwork
-
-model_dict = {
-    SupportedModels.mace_model.value: MaceNet,
-    SupportedModels.gat_model.value: GATModel,
-    SupportedModels.gate_equiv_model.value: GateEquivariantModel,
-    SupportedModels.equivariant_gat.value: O3GraphAttentionNetwork,
-}
 
 
 # TODO: add comments and test code
@@ -27,17 +19,14 @@ model_dict = {
 class LightningModelWrapper(pl.LightningModule):
     def __init__(
         self,
-        model_name: str,
-        model_params: dict,
+        model: torch.nn.Module,
         lr: float = 1e-2,
         compile: bool = False,
         target_idx: int | list[int] = 0,
     ):
         super().__init__()
-        try:
-            self.model = model_dict[model_name](**model_params)
-        except:
-            print(f"{model_name} is not a supported model.")
+
+        self.model = model
 
         if compile:
             self.model = torch.compile(self.model)

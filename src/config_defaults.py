@@ -1,10 +1,14 @@
 from enum import Enum
+from datasets import QM9_dataset
 
 
 class Tasks(Enum):
     qm9 = "qm9"
     molecular_properties = "molecular_properties"
     dynamic = "dynamic"
+
+
+dataset_dict = {Tasks.qm9.value: QM9_dataset}
 
 
 class SupportedModels(Enum):
