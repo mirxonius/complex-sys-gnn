@@ -2,7 +2,7 @@ import torch
 from torch_geometric.nn import GAT
 from torch_geometric.data import Data
 
-from utils.model_utils import make_fcnn, MeanOnGraph, check
+from utils.model_utils import make_fcnn, MeanOnGraph
 
 
 class GATModel(torch.nn.Module):

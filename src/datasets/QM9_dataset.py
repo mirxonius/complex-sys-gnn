@@ -12,8 +12,7 @@ class QM9_dataset(Dataset):
         transforms: Optional[Callable] = lambda x: x,
         indices: str | Path | Iterable = None,
     ) -> None:
-        super().__init__()
-        self.data = QM9(root_dir)
+        self.data = QM9(root=root_dir)
         self.transforms = transforms
         if isinstance(indices, Path) or isinstance(indices, str):
             indices = torch.load(indices)

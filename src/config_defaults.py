@@ -8,7 +8,7 @@ class Tasks(Enum):
     dynamic = "dynamic"
 
 
-dataset_dict = {Tasks.qm9.value: QM9_dataset}
+dataset_dict = {Tasks.qm9.value: QM9_dataset.QM9_dataset}
 
 
 class SupportedModels(Enum):

@@ -6,7 +6,6 @@ import pytorch_lightning as pl
 from torch_geometric.data import Data
 
 
-from config_defaults import SupportedModels
 from utils.metric_calc import RegressionMetricCalc
 
 from models.gat_model import GATModel

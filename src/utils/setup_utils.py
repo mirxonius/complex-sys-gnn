@@ -26,6 +26,7 @@ def set_up_model(model_name, model_args_json):
         model = MaceNet(**model_kwargs)
 
     else:
+        print(dataset_dict)
         raise ValueError(f"{model_name} is not supported a supported model.")
 
     return model
@@ -50,8 +51,12 @@ def set_up_dataset(
     else:
         try:
             full_dataset = dataset_dict[task](root_dir=dataset_root_dir)
-            train_set, valid_set = torch.utils.data.random_split(full_dataset, 0.7, 0.3)
-            valid_set, test_set = torch.utils.data.random_split(valid_set, 0.6, 0.4)
+            train_set, valid_set = torch.utils.data.random_split(
+                full_dataset, lengths=[0.7, 0.3]
+            )
+            valid_set, test_set = torch.utils.data.random_split(
+                valid_set, lengths=[0.6, 0.4]
+            )
         except:
             raise KeyError(f"Task {task} is not defined")
     return train_set, valid_set, test_set

@@ -9,12 +9,13 @@ from utils.setup_utils import set_up_model, set_up_dataset
 
 
 parser = ArgumentParser()
-parser.add_argument("--experiment_name", default="MACE", type=str)
+parser.add_argument("--experiment_name", default="test", type=str)
 parser.add_argument("--num_epochs", type=int, default=20)
 parser.add_argument("--lr", type=float, default=1e-3)
-parser.add_argument("--batch_size", type=int, default=32)
+parser.add_argument("--batch_size", type=int, default=128)
 parser.add_argument("--radius", type=float, default=None)
 parser.add_argument("--task", type=str)
+parser.add_argument("--compile", type=bool, default=False)
 parser.add_argument("--model", type=str)
 parser.add_argument(
     "--model_args_json",
@@ -29,12 +30,12 @@ parser.add_argument(
     help="If provided the directory should contain three .pt files named train_idx.pt, valid_idx.pt and test_idx.pt",
 )
 
-log_dir = Path("..logs/")
+log_dir = Path("../logs/")
 
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    model = set_up_model(args.model, args._model_args_json)
+    model = set_up_model(args.model, args.model_args_json)
     model = LightningModelWrapper(model=model, lr=args.lr, compile=args.compile)
 
     train_set, valid_set, test_set = set_up_dataset(
