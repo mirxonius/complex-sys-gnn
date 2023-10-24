@@ -30,7 +30,7 @@ parser.add_argument(
     help="If provided the directory should contain three .pt files named train_idx.pt, valid_idx.pt and test_idx.pt",
 )
 
-log_dir = Path("../logs/")
+log_dir = Path("./logs/")
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -59,6 +59,7 @@ if __name__ == "__main__":
     )
 
     log_dir = Path(log_dir, args.task)
+    log_dir.mkdir(exist_ok=True)
     logger = TensorBoardLogger(log_dir, name=args.experiment_name)
     trainer = pl.Trainer(logger=logger, max_epochs=args.num_epochs, accelerator="gpu")
 
