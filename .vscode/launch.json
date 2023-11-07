@@ -13,6 +13,5 @@
 			"args": "--task qm9 --model_args_json model_args/qm9/o3_transformer_args.json  --model equivariant_gat",
 			"justMyCode": false
 		}
-        
     ]   
     }   
