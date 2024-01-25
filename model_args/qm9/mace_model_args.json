@@ -1,6 +1,6 @@
 {
     "mace_params":{
-        "max_ell":3,
+        "max_ell":2,
         "correlation":3,
         "n_dims_in":11,
         "hidden_irreps":"16x0e + 16x1o + 16x2e",

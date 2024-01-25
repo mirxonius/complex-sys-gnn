@@ -1,8 +1,10 @@
 from pathlib import Path
 from argparse import ArgumentParser
 from torch_geometric.loader import DataLoader
+import torch
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.profilers import PyTorchProfiler
 
 from models.lightning_model_wrapper import LightningModelWrapper
 from utils.setup_utils import set_up_model, set_up_dataset
@@ -60,8 +62,22 @@ if __name__ == "__main__":
 
     log_dir = Path(log_dir, args.task)
     log_dir.mkdir(exist_ok=True)
+    profiler = PyTorchProfiler(
+        on_trace_ready=torch.profiler.tensorboard_trace_handler(
+            str(Path(log_dir, args.experiment_name, "profiler"))
+        ),
+        trace_memory=True,
+        schedule=torch.profiler.schedule(skip_first=10, wait=1, warmup=1, active=20),
+    )
+    profiler = "simple"
     logger = TensorBoardLogger(log_dir, name=args.experiment_name)
-    trainer = pl.Trainer(logger=logger, max_epochs=args.num_epochs, accelerator="gpu")
+    trainer = pl.Trainer(
+        logger=logger,
+        max_epochs=args.num_epochs,
+        accelerator="gpu",
+        profiler=profiler,
+        # overfit_batches=2,
+    )
 
     trainer.fit(model, train_loader, valid_loader)
 

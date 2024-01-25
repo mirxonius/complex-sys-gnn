@@ -15,7 +15,7 @@ from config_defaults import dataset_dict
 def set_up_model(model_name, model_args_json):
     with open(model_args_json, "r") as file:
         model_kwargs = json.load(file)
-
+    print(model_kwargs)
     if model_name == SupportedModels.equivariant_gat.value:
         model = O3GraphAttentionNetwork(**model_kwargs)
 

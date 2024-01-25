@@ -12,6 +12,15 @@
 			"console": "integratedTerminal",
 			"args": "--task qm9 --model_args_json model_args/qm9/o3_transformer_args.json  --model equivariant_gat",
 			"justMyCode": false
+		},
+		{
+			"name":"Train Graph Attention Network for QM9",
+			"type": "python",
+			"request": "launch",
+			"program": "src/train.py",
+			"console": "integratedTerminal",
+			"args": "--task qm9 --model_args_json model_args/qm9/regular_gat_args.json  --model gat_model",
+			"justMyCode": false
 		}
     ]   
     }   

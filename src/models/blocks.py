@@ -3,7 +3,7 @@ from e3nn import o3, nn, math, io
 from e3nn.util.jit import compile_mode
 from torch_scatter import scatter
 from torch_geometric.data import Data
-
+from torch_geometric.nn import MessagePassing
 from utils.model_utils import softmax_on_graph
 
 
@@ -30,8 +30,10 @@ class O3AttentionLayer(torch.nn.Module):
         lmax: int = 2,
         num_basis: int = 32,
         max_radius: float = 2.5,
+        num_neighbors: int = 32,
     ) -> None:
         super().__init__()
+        self.num_neighbors = num_neighbors
         self.num_basis = num_basis
         self.max_radius = max_radius
         self.irreps_sph = o3.Irreps.spherical_harmonics(lmax=lmax)
@@ -95,9 +97,12 @@ class O3AttentionLayer(torch.nn.Module):
         attn_score = softmax_on_graph(
             input=self.similarity_tp(query[dst], key), index=dst, dim=0
         )
-        return scatter(
-            src=attn_score.relu().sqrt() * values,
-            index=dst,
-            dim=0,
-            dim_size=len(graph.x),
+        return (
+            scatter(
+                src=attn_score.relu().sqrt() * values,
+                index=dst,
+                dim=0,
+                dim_size=len(graph.x),
+            )
+            / self.num_neighbors
         )

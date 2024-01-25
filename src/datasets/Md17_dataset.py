@@ -13,7 +13,7 @@ class BenzeneEthanolUracilDataset(Dataset):
         data_dir: Path | str,
         index_file: str | Path,
         split: str = "train",
-        radius: float = 1.25,
+        radius: float = 1.875,
     ) -> None:
         """
         Args:
@@ -40,13 +40,15 @@ class BenzeneEthanolUracilDataset(Dataset):
             self.indexing = json.load(indexing_data)[split]
 
         benzene = Subset(
-            MD17(root=data_dir, name="benzene"), indices=self.indexing["benzene"]
+            MD17(root=data_dir, name="revised benzene"),
+            indices=self.indexing["benzene"],
         )
         uracil = Subset(
-            MD17(root=data_dir, name="uracil"), indices=self.indexing["uracil"]
+            MD17(root=data_dir, name="revised uracil"), indices=self.indexing["uracil"]
         )
         ethanol = Subset(
-            MD17(root=data_dir, name="ethanol"), indices=self.indexing["ethanol"]
+            MD17(root=data_dir, name="revised ethanol"),
+            indices=self.indexing["ethanol"],
         )
         self.data = ConcatDataset([benzene, uracil, ethanol])
 

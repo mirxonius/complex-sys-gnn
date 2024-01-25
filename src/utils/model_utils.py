@@ -68,3 +68,7 @@ def make_fcnn(
         if i < len(layer_sizes) - 1:
             layers.append(activation)
     return torch.nn.Sequential(*layers)
+
+
+def atom_embedding():
+    pass

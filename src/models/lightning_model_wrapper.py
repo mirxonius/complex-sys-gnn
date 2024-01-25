@@ -1,5 +1,5 @@
 from typing import Iterable
-
+from collections import defaultdict
 import torch
 from torch.optim import Adam, lr_scheduler
 import pytorch_lightning as pl
@@ -7,10 +7,6 @@ from torch_geometric.data import Data
 
 
 from utils.metric_calc import RegressionMetricCalc
-
-from models.gat_model import GATModel
-from models.mace_model import MaceNet
-from models.equivariant_gat import O3GraphAttentionNetwork
 
 
 # TODO: add comments and test code
@@ -38,7 +34,10 @@ class LightningModelWrapper(pl.LightningModule):
         self.metric_calculator = RegressionMetricCalc(num_outputs=1)
         self.loss_fn = torch.nn.MSELoss()
         self.lr = lr
-        self.save_hyperparameters()
+        self.step_outputs = defaultdict(
+            lambda: {"y_pred": [], "y_true": [], "loss": []}
+        )
+        # self.save_hyperparameters()
 
     def forward(self, graph: Data):
         return self.model(graph)
@@ -46,14 +45,31 @@ class LightningModelWrapper(pl.LightningModule):
     def _step(self, graph, step_type="train"):
         prediction = self.forward(graph)
         loss = self.loss_fn(prediction, graph.y[:, self.target_idx])
-        metric_dict = self.metric_calculator(
-            prediction, graph.y[:, self.target_idx], step_type
-        )
-        metric_dict.update({step_type + "_MSE_loss": loss})
-        self.log_dict(
-            metric_dict, on_epoch=True, on_step=True, batch_size=graph.batch.max()
-        )
+        self.step_outputs[step_type]["y_pred"].append(prediction)
+        self.step_outputs[step_type]["y_true"].append(graph.y[:, self.target_idx])
+        self.step_outputs[step_type]["loss"].append(loss)
         return loss
+
+    def on_epoch_end(self, epoch_type):
+        avg_loss = torch.stack(
+            [x for x in self.step_outputs[epoch_type]["loss"]]
+        ).mean()
+        y_pred = torch.cat([x for x in self.step_outputs[epoch_type]["y_pred"]])
+        y_true = torch.cat([x for x in self.step_outputs[epoch_type]["y_true"]])
+        for k in self.step_outputs[epoch_type].keys():
+            self.step_outputs[epoch_type][k].clear()
+        metric_dict = self.metric_calculator(y_pred, y_true, epoch_type)
+        metric_dict.update({f"{epoch_type}_MSE_loss": avg_loss})
+        self.log_dict(metric_dict, on_step=False, on_epoch=True, prog_bar=True)
+
+    def on_train_epoch_end(self) -> None:
+        self.on_epoch_end("train")
+
+    def on_validation_epoch_end(self) -> None:
+        self.on_epoch_end("valid")
+
+    def on_test_epoch_end(self) -> None:
+        self.on_epoch_end("test")
 
     def training_step(self, batch, batch_idx):
         return self._step(batch, "train")
