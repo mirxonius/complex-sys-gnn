@@ -44,7 +44,7 @@ class O3AttentionLayer(torch.nn.Module):
             shared_weights=False,
         )
         self.value_basis_net = nn.FullyConnectedNet(
-            [self.num_basis, 16, self.tp_value.weight_numel],
+            [self.num_basis, 32, self.tp_value.weight_numel],
             act=torch.nn.functional.silu,
         )
 
@@ -55,7 +55,7 @@ class O3AttentionLayer(torch.nn.Module):
             shared_weights=False,
         )
         self.key_basis_net = nn.FullyConnectedNet(
-            [self.num_basis, 16, self.tp_key.weight_numel],
+            [self.num_basis, 32, self.tp_key.weight_numel],
             act=torch.nn.functional.silu,
         )
 

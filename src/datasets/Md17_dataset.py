@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import numpy as np
 import torch
 from torch.utils.data import Dataset, ConcatDataset, Subset
 from torch_geometric.datasets import MD17
@@ -35,9 +36,13 @@ class BenzeneEthanolUracilDataset(Dataset):
                 },
                 "valid":{"benzene":[...],"uracil":[...],"ethanol":[...]},
                 "test":{"benzene":[...],"uracil":[...],"ethanol":[...]}
-                }
+            }
             """
             self.indexing = json.load(indexing_data)[split]
+        # Table containing all possible atomic numbers that can occur
+        # in dataset: H, O, N, C
+        self.z_table = [1, 6, 7, 8]
+        self.z_to_index_map = np.vectorize(self.z_to_index)
 
         benzene = Subset(
             MD17(root=data_dir, name="revised benzene"),
@@ -58,10 +63,30 @@ class BenzeneEthanolUracilDataset(Dataset):
     def __getitem__(self, index) -> Data:
         example: Data = self.data[index]
         example.edge_index = radius_graph(example.pos, r=self.radius, loop=False)
-        # TODO: Atom type one hot encoding i embeddings
-
+        Z_ind = self.z_to_index_map(example.z)
+        example.z = torch.nn.functional.one_hot(torch.tensor(Z_ind), num_classes=4)
         return example
+
+    def z_to_index(self, Z: int) -> int:
+        """
+        Used for one hot encoding
+        of atomic numbers.
+        NOTE: This function is never explicitly called, rather
+              we use its vectorized form declared in the __init__ function.
+        """
+        return self.z_table.index(Z)
 
 
 class ParacetamolDataset(Dataset):
-    pass
+    def __init__(self) -> None:
+        self.z_table = [1, 6, 7, 8]
+        self.z_to_index_map = np.vectorize(self.z_to_index)
+
+    def z_to_index(self, Z: int) -> int:
+        """
+        Used for one hot encoding
+        of atomic numbers.
+        NOTE: This function is never explicitly called, rather
+              we use its vectorized form declared in the __init__ function.
+        """
+        return self.z_table.index(Z)
