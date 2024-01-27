@@ -25,6 +25,7 @@ class SupportedLosses(Enum):
     mae = "mae"
     mse = "mse"
     mse_mae = "mse_mae"
+    huber = "huber"
 
 
 class SupportedModels(Enum):
