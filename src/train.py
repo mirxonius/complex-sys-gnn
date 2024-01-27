@@ -60,21 +60,14 @@ if __name__ == "__main__":
 
     log_dir = Path(log_dir, args.task)
     os.makedirs(log_dir, exist_ok=True)
-    profiler = PyTorchProfiler(
-        on_trace_ready=torch.profiler.tensorboard_trace_handler(
-            str(Path(log_dir, args.experiment_name, "profiler"))
-        ),
-        trace_memory=True,
-        schedule=torch.profiler.schedule(skip_first=10, wait=1, warmup=1, active=20),
-    )
-    profiler = "simple"
+
+    #profiler = "simple
     logger = TensorBoardLogger(log_dir, name=args.experiment_name)
     trainer = pl.Trainer(
         logger=logger,
         max_epochs=args.num_epochs,
         accelerator="gpu",
-        profiler=profiler,
-        # overfit_batches=2,
+        devices = [0]
     )
 
     trainer.fit(model, train_loader, valid_loader)
