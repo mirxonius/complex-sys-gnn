@@ -12,7 +12,7 @@ class BenzeneEthanolUracilDataset(Dataset):
     def __init__(
         self,
         data_dir: Path | str,
-        index_file: str | Path,
+        index_file: str | Path = "benzene_ethanol_uracil_index.json",
         split: str = "train",
         radius: float = 1.875,
     ) -> None:
@@ -64,7 +64,9 @@ class BenzeneEthanolUracilDataset(Dataset):
         example: Data = self.data[index]
         example.edge_index = radius_graph(example.pos, r=self.radius, loop=False)
         Z_ind = self.z_to_index_map(example.z)
-        example.z = torch.nn.functional.one_hot(torch.tensor(Z_ind), num_classes=4)
+        example.z = torch.nn.functional.one_hot(
+            torch.tensor(Z_ind), num_classes=4
+        ).float()
         return example
 
     def z_to_index(self, Z: int) -> int:
@@ -81,7 +83,7 @@ class ParacetamolDataset(Dataset):
     def __init__(
         self,
         data_dir: str | Path,
-        index_file: str | Path,
+        index_file: str | Path = "paracetamol.index",
         split="test",
         radius: float = 1.875,
     ) -> None:

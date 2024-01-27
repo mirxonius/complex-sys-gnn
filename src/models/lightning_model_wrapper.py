@@ -17,36 +17,36 @@ class LightningModelWrapper(pl.LightningModule):
         model: torch.nn.Module,
         lr: float = 1e-2,
         compile: bool = False,
-        target_idx: int | list[int] = 0,
+        target_key: str = "force",
+        **metric_calc_kwargs,
     ):
         super().__init__()
 
         self.model = model
-
         if compile:
             self.model = torch.compile(self.model)
 
-        if isinstance(target_idx, Iterable):
-            self.target_idx = torch.LongTensor(target_idx)
-        else:
-            self.target_idx = torch.LongTensor([target_idx])
+        self.target_key = target_key
 
-        self.metric_calculator = RegressionMetricCalc(num_outputs=1)
+        self.metric_calculator = RegressionMetricCalc(**metric_calc_kwargs)
         self.loss_fn = torch.nn.MSELoss()
         self.lr = lr
         self.step_outputs = defaultdict(
             lambda: {"y_pred": [], "y_true": [], "loss": []}
         )
-        # self.save_hyperparameters()
+        self.save_hyperparameters(
+            ignore=["target_key", "step_outputs", "metric_calculator", "loss_fn"]
+        )
 
     def forward(self, graph: Data):
         return self.model(graph)
 
     def _step(self, graph, step_type="train"):
         prediction = self.forward(graph)
-        loss = self.loss_fn(prediction, graph.y[:, self.target_idx])
+        loss = self.loss_fn(prediction, graph[self.target_key])
+
         self.step_outputs[step_type]["y_pred"].append(prediction)
-        self.step_outputs[step_type]["y_true"].append(graph.y[:, self.target_idx])
+        self.step_outputs[step_type]["y_true"].append(graph[self.target_key])
         self.step_outputs[step_type]["loss"].append(loss)
         return loss
 
@@ -84,5 +84,5 @@ class LightningModelWrapper(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = Adam(self.parameters(), lr=self.lr, weight_decay=1e-3)
-        scheduler = lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=1 - 1e-3)
+        scheduler = lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=1 - 1e-4)
         return {"optimizer": optimizer, "lr_scheduler": scheduler}

@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 from argparse import ArgumentParser
 from torch_geometric.loader import DataLoader
 import torch
@@ -7,13 +8,13 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.profilers import PyTorchProfiler
 
 from models.lightning_model_wrapper import LightningModelWrapper
-from utils.setup_utils import set_up_model, set_up_dataset
+from utils.setup_utils import set_up_model, set_up_dataset, set_up_metric
 
 
 parser = ArgumentParser()
-parser.add_argument("--experiment_name", default="test", type=str)
+parser.add_argument("--experiment_name", default="equivariant_gat", type=str)
 parser.add_argument("--num_epochs", type=int, default=20)
-parser.add_argument("--lr", type=float, default=1e-3)
+parser.add_argument("--lr", type=float, default=1e-2)
 parser.add_argument("--batch_size", type=int, default=128)
 parser.add_argument("--radius", type=float, default=None)
 parser.add_argument("--task", type=str)
@@ -25,12 +26,7 @@ parser.add_argument(
     help=".json file containing model parameters, since they can be very long.",
 )
 parser.add_argument("--data_dir", type=str, default=None)
-parser.add_argument(
-    "--dataset_index_dir",
-    type=str,
-    default=None,
-    help="If provided the directory should contain three .pt files named train_idx.pt, valid_idx.pt and test_idx.pt",
-)
+
 
 log_dir = Path("./logs/")
 
@@ -38,12 +34,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     model = set_up_model(args.model, args.model_args_json)
-    model = LightningModelWrapper(model=model, lr=args.lr, compile=args.compile)
+    metric_calc_kwargs = set_up_metric(args.task)
+    model = LightningModelWrapper(
+        model=model, lr=args.lr, compile=args.compile, **metric_calc_kwargs
+    )
 
     train_set, valid_set, test_set = set_up_dataset(
         task=args.task,
-        dataset_root_dir=args.data_dir,
-        dataset_index_dir=args.dataset_index_dir,
+        dataset_data_dir=args.data_dir,
     )
 
     train_loader = DataLoader(
@@ -61,7 +59,7 @@ if __name__ == "__main__":
     )
 
     log_dir = Path(log_dir, args.task)
-    log_dir.mkdir(exist_ok=True)
+    os.makedirs(log_dir, exist_ok=True)
     profiler = PyTorchProfiler(
         on_trace_ready=torch.profiler.tensorboard_trace_handler(
             str(Path(log_dir, args.experiment_name, "profiler"))

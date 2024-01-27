@@ -1,0 +1,10 @@
+{
+    "input_irreps":"64x0e",
+    "output_irreps":"1x1o",
+    "hidden_irreps":"32x0e+32x1e+32x2e",
+    "lmax":3,
+    "num_basis":64,
+    "num_layers":2,
+    "aggregate":false
+
+}

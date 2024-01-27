@@ -1,14 +1,24 @@
 from enum import Enum
-from datasets import QM9_dataset
+from datasets.Md17_dataset import ParacetamolDataset, BenzeneEthanolUracilDataset
 
 
 class Tasks(Enum):
-    qm9 = "qm9"
-    molecular_properties = "molecular_properties"
-    dynamic = "dynamic"
+    tri_molecule_forces = "tri_molecule_forces"
+    tri_molecule_energy = "tri_molecule_energy"
+    benzene_forces = "benzene_forces"
+    benzene_energy = "benzene_energy"
+    uracail_forces = "uracail_forces"
+    uracail_energy = "uracail_energy"
+    ethanol_forces = "ethaned_forces"
+    ethanol_energy = "ethanol_energy"
+    paracetamol = "paracetamol"
 
 
-dataset_dict = {Tasks.qm9.value: QM9_dataset.QM9_dataset}
+dataset_dict = {
+    Tasks.tri_molecule_energy.value: BenzeneEthanolUracilDataset,
+    Tasks.tri_molecule_forces.value: BenzeneEthanolUracilDataset,
+    Tasks.paracetamol: ParacetamolDataset,
+}
 
 
 class SupportedModels(Enum):

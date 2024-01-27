@@ -5,12 +5,12 @@
 	"version": "0.1.0",
 	"configurations": [
 		{
-			"name": "Train O3-Transformer for QM9",
+			"name": "Train O3-Transformer for MD17",
 			"type": "python",
 			"request": "launch",
 			"program": "src/train.py",
 			"console": "integratedTerminal",
-			"args": "--task qm9 --model_args_json model_args/qm9/o3_transformer_args.json  --model equivariant_gat",
+			"args": "--task tri_molecule_forces --model_args_json model_args/md17/o3_transformer_args.json  --model equivariant_gat",
 			"justMyCode": false
 		},
 		{
@@ -19,7 +19,7 @@
 			"request": "launch",
 			"program": "src/train.py",
 			"console": "integratedTerminal",
-			"args": "--task qm9 --model_args_json model_args/qm9/regular_gat_args.json  --model gat_model",
+			"args": "--task tri_molecule_forces --model_args_json model_args/md17/regular_gat_args.json  --model gat_model",
 			"justMyCode": false
 		}
     ]   

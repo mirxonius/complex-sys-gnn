@@ -15,13 +15,15 @@ class O3GraphAttentionNetwork(torch.nn.Module):
         hidden_irreps: str | o3.Irreps,
         lmax: int,
         num_basis: int,
-        aggregate: bool = True,
+        aggregate: bool = False,
         max_radius: float = 2.5,
+        num_atom_types: int = 4,
+        embedding_size: int = 64,
     ):
         self.max_radius = max_radius
         super().__init__()
         self.aggregate = MeanOnGraph() if aggregate else IdentityOnGraph()
-
+        self.atom_embedding = torch.nn.Linear(num_atom_types, embedding_size)
         layers = []
         for i in range(num_layers):
             layers.append(
@@ -38,6 +40,7 @@ class O3GraphAttentionNetwork(torch.nn.Module):
         self.layers = torch.nn.ModuleList(layers)
 
     def forward(self, graph: Data) -> torch.Tensor:
+        graph.x = self.atom_embedding(graph.z)
         for layer in self.layers:
             updated_node_features = layer(graph)
             graph.x = updated_node_features

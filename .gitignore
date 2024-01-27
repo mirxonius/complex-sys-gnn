@@ -1,5 +1,4 @@
 *.ipynb
-notebooks/
 !data/
 data/*
 !logs/

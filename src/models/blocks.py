@@ -1,9 +1,8 @@
 import torch
-from e3nn import o3, nn, math, io
+from e3nn import o3, nn, math
 from e3nn.util.jit import compile_mode
 from torch_scatter import scatter
 from torch_geometric.data import Data
-from torch_geometric.nn import MessagePassing
 from utils.model_utils import softmax_on_graph
 
 
@@ -81,7 +80,7 @@ class O3AttentionLayer(torch.nn.Module):
             basis="bessel",
             cutoff=True,
         )
-        # edge_weight_cutoff = math.soft_unit_step(10 * (1 - vec_len / self.max_radius))
+        edge_weight_cutoff = math.soft_unit_step(10 * (1 - vec_len / self.max_radius))
 
         radial_embedding = radial_embedding.mul(self.num_basis**0.5)
         vec_sph = o3.spherical_harmonics(
@@ -93,10 +92,21 @@ class O3AttentionLayer(torch.nn.Module):
         values = self.tp_value(
             graph.x[src], vec_sph, self.value_basis_net(radial_embedding)
         )
-
+        similarity = self.similarity_tp(query[src], key)
         attn_score = softmax_on_graph(
-            input=self.similarity_tp(query[dst], key), index=dst, dim=0
+            input=edge_weight_cutoff.unsqueeze(-1) * similarity,
+            index=src,
+            dim=0,
         )
+        # print(
+        #    "SHapes: ",
+        #    edge_weight_cutoff.shape,
+        #    attn_score.shape,
+        #    key.shape,
+        #    query.shape,
+        #    values.shape,
+        #    similarity.shape,
+        # )
         return (
             scatter(
                 src=attn_score.relu().sqrt() * values,
