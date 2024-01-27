@@ -7,9 +7,9 @@ import torch
 from models.equivariant_gat import O3GraphAttentionNetwork
 from models.gat_model import GATModel
 from models.mace_model import MaceNet
+from utils.loss_utils import MSE_MAE_Loss
 
-from config_defaults import SupportedModels
-from config_defaults import dataset_dict, Tasks
+from config_defaults import dataset_dict, Tasks, SupportedLosses, SupportedModels
 
 
 def set_up_model(model_name, model_args_json):
@@ -56,3 +56,15 @@ def set_up_metric(task):
     match task:
         case Tasks.tri_molecule_forces.value:
             return {"num_outputs": 3}
+
+
+def set_up_loss(loss: str):
+    match loss:
+        case SupportedLosses.mae.value:
+            return torch.nn.L1Loss()
+        case SupportedLosses.mse.value:
+            return torch.nn.MSELoss()
+        case SupportedLosses.mse_mae.value:
+            return MSE_MAE_Loss()
+        case _:
+            raise ValueError(f"{loss} is not supported!")

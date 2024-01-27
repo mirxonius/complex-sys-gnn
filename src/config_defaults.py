@@ -21,6 +21,12 @@ dataset_dict = {
 }
 
 
+class SupportedLosses(Enum):
+    mae = "mae"
+    mse = "mse"
+    mse_mae = "mse_mae"
+
+
 class SupportedModels(Enum):
     gat_model = "gat_model"
     gate_equiv_model = "gate_equiv_model"

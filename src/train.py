@@ -8,7 +8,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.profilers import PyTorchProfiler
 
 from models.lightning_model_wrapper import LightningModelWrapper
-from utils.setup_utils import set_up_model, set_up_dataset, set_up_metric
+from utils.setup_utils import set_up_model, set_up_dataset, set_up_metric, set_up_loss
 
 
 parser = ArgumentParser()
@@ -26,7 +26,7 @@ parser.add_argument(
     help=".json file containing model parameters, since they can be very long.",
 )
 parser.add_argument("--data_dir", type=str, default=None)
-
+parser.add_argument("--loss", type=str, default="mse")
 
 log_dir = Path("./logs/")
 
@@ -35,6 +35,7 @@ if __name__ == "__main__":
 
     model = set_up_model(args.model, args.model_args_json)
     metric_calc_kwargs = set_up_metric(args.task)
+    loss = set_up_loss(args.loss)
     model = LightningModelWrapper(
         model=model, lr=args.lr, compile=args.compile, **metric_calc_kwargs
     )
@@ -61,13 +62,10 @@ if __name__ == "__main__":
     log_dir = Path(log_dir, args.task)
     os.makedirs(log_dir, exist_ok=True)
 
-    #profiler = "simple
+    # profiler = "simple
     logger = TensorBoardLogger(log_dir, name=args.experiment_name)
     trainer = pl.Trainer(
-        logger=logger,
-        max_epochs=args.num_epochs,
-        accelerator="gpu",
-        devices = [0]
+        logger=logger, max_epochs=args.num_epochs, accelerator="gpu", devices=[0]
     )
 
     trainer.fit(model, train_loader, valid_loader)

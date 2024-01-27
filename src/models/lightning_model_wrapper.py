@@ -18,6 +18,7 @@ class LightningModelWrapper(pl.LightningModule):
         lr: float = 1e-2,
         compile: bool = False,
         target_key: str = "force",
+        loss_fn: torch.nn.Module = torch.nn.MSELoss(),
         **metric_calc_kwargs,
     ):
         super().__init__()
@@ -29,7 +30,7 @@ class LightningModelWrapper(pl.LightningModule):
         self.target_key = target_key
 
         self.metric_calculator = RegressionMetricCalc(**metric_calc_kwargs)
-        self.loss_fn = torch.nn.MSELoss()
+        self.loss_fn = loss_fn
         self.lr = lr
         self.step_outputs = defaultdict(
             lambda: {"y_pred": [], "y_true": [], "loss": []}
@@ -84,5 +85,5 @@ class LightningModelWrapper(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = Adam(self.parameters(), lr=self.lr, weight_decay=1e-3)
-        scheduler = lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=1 - 1e-4)
+        scheduler = lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=1 - 1e-3)
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
