@@ -66,6 +66,7 @@ def set_up_loss(loss: str):
             return torch.nn.MSELoss()
         case SupportedLosses.mse_mae.value:
             return MSE_MAE_Loss()
-
+        case SupportedLosses.huber.value:
+            return torch.nn.HuberLoss()
         case _:
             raise ValueError(f"{loss} is not supported!")
