@@ -15,6 +15,7 @@ class BenzeneEthanolUracilDataset(Dataset):
         index_file: str | Path = "benzene_ethanol_uracil_index.json",
         split: str = "train",
         radius: float = 1.875,
+        molecules: list[str] = ["benzene", "ethanol", "uracil"],
     ) -> None:
         """
         Args:
@@ -43,19 +44,29 @@ class BenzeneEthanolUracilDataset(Dataset):
         # in dataset: H, O, N, C
         self.z_table = [1, 6, 7, 8]
         self.z_to_index_map = np.vectorize(self.z_to_index)
-
-        benzene = Subset(
-            MD17(root=data_dir, name="revised benzene"),
-            indices=self.indexing["benzene"],
-        )
-        uracil = Subset(
-            MD17(root=data_dir, name="revised uracil"), indices=self.indexing["uracil"]
-        )
-        ethanol = Subset(
-            MD17(root=data_dir, name="revised ethanol"),
-            indices=self.indexing["ethanol"],
-        )
-        self.data = ConcatDataset([benzene, uracil, ethanol])
+        datasets = []
+        if "benzene" in molecules:
+            datasets.append(
+                Subset(
+                    MD17(root=data_dir, name="revised benzene"),
+                    indices=self.indexing["benzene"],
+                )
+            )
+        if "uracil" in molecules:
+            datasets.append(
+                Subset(
+                    MD17(root=data_dir, name="revised uracil"),
+                    indices=self.indexing["uracil"],
+                )
+            )
+        if "ethanol" in molecules:
+            datasets.append(
+                Subset(
+                    MD17(root=data_dir, name="revised ethanol"),
+                    indices=self.indexing["ethanol"],
+                )
+            )
+        self.data = ConcatDataset(datasets)
 
     def __len__(self):
         return len(self.data)
@@ -123,7 +134,9 @@ class ParacetamolDataset(Dataset):
         example: Data = self.data[index]
         example.edge_index = radius_graph(example.pos, r=self.radius, loop=False)
         Z_ind = self.z_to_index_map(example.z)
-        example.z = torch.nn.functional.one_hot(torch.tensor(Z_ind), num_classes=4)
+        example.z = torch.nn.functional.one_hot(
+            torch.tensor(Z_ind), num_classes=4
+        ).float()
         return example
 
     def z_to_index(self, Z: int) -> int:

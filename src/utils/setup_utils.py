@@ -14,15 +14,20 @@ from config_defaults import dataset_dict, Tasks, SupportedLosses, SupportedModel
 
 def set_up_model(model_name, model_args_json):
     with open(model_args_json, "r") as file:
-        model_kwargs = json.load(file)
-    if model_name == SupportedModels.equivariant_gat.value:
-        model = O3GraphAttentionNetwork(**model_kwargs)
+        try:
+            model_info = json.load(file)[model_name]
+        except:
+            raise KeyError(f"{model_name} is not found.")
+    model_type = model_info["model_type"]
+    model_args = model_info["model_args"]
+    if model_type == SupportedModels.equivariant_gat.value:
+        model = O3GraphAttentionNetwork(**model_args)
 
-    elif model_name == SupportedModels.gat_model.value:
-        model = GATModel(**model_kwargs)
+    elif model_type == SupportedModels.gat_model.value:
+        model = GATModel(**model_args)
 
-    elif model_name == SupportedModels.mace_model.value:
-        model = MaceNet(**model_kwargs)
+    elif model_type == SupportedModels.mace_model.value:
+        model = MaceNet(**model_args)
 
     else:
         print(dataset_dict)

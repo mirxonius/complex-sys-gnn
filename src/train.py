@@ -39,7 +39,7 @@ if __name__ == "__main__":
     model = LightningModelWrapper(
         model=model, lr=args.lr, compile=args.compile, **metric_calc_kwargs
     )
-
+    print("MODEL IS READY")
     train_set, valid_set, test_set = set_up_dataset(
         task=args.task,
         dataset_data_dir=args.data_dir,
@@ -63,11 +63,10 @@ if __name__ == "__main__":
     os.makedirs(log_dir, exist_ok=True)
 
     # profiler = "simple
-    logger = TensorBoardLogger(log_dir, name=args.experiment_name)
+    logger = TensorBoardLogger(log_dir, name=args.model)
     trainer = pl.Trainer(
         logger=logger, max_epochs=args.num_epochs, accelerator="gpu", devices=[0]
     )
-
     trainer.fit(model, train_loader, valid_loader)
 
     trainer.test(model, test_loader)
