@@ -85,5 +85,6 @@ class LightningModelWrapper(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = Adam(self.parameters(), lr=self.lr, weight_decay=1e-3)
-        scheduler = lr_scheduler.StepLR(optimizer=optimizer,step_size=100 ,gamma=0.5)
+        #scheduler = lr_scheduler.StepLR(optimizer=optimizer,step_size=300,gamma=0.1)
+        scheduler = lr_scheduler.ExponentialLR(optimizer=optimizer,gamma=1-1e-3)
         return {"optimizer": optimizer, "lr_scheduler": scheduler}

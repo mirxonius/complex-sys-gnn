@@ -5,7 +5,7 @@
         "model_args":{
             "input_irreps":"64x0e",
             "output_irreps":"1x1o",
-            "hidden_irreps":"32x0e+32x1e+32x2e",
+            "hidden_irreps":"64x0e+64x1e+64x2e",
             "lmax":2,
             "num_basis":64,
             "num_layers":2,
@@ -25,6 +25,19 @@
         
             }
         },
+        "huge_o3_transformer":{
+            "model_type":"equivariant_gat",
+            "model_args":{
+                "input_irreps":"64x0e",
+                "output_irreps":"1x1o",
+                "hidden_irreps":"128x0e+128x1e+128x2e",
+                "lmax":2,
+                "num_basis":64,
+                "num_layers":3,
+                "aggregate":false
+            
+                }
+            },
     "regular_gat":{
         "model_type":"gat_model",
         "model_args":{

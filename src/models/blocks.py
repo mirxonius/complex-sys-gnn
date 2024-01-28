@@ -3,6 +3,8 @@ from e3nn import o3, nn, math
 from e3nn.util.jit import compile_mode
 from torch_scatter import scatter
 from torch_geometric.data import Data
+from torch_scatter import scatter
+
 from utils.model_utils import softmax_on_graph
 
 
@@ -16,6 +18,49 @@ class O3EquivConv(torch.nn.Module):
 
     def forward(self):
         pass
+
+
+class NodeEncoder(torch.nn.Module):
+    def __init__(
+        self,
+        num_atom_types: int = 4,
+        atom_embedding_size: int = 64,
+        embedding_irreps: str | o3.Irreps = "32x0e + 32x1o + 32x2e",
+        lmax: int = 2,
+    ):
+        super().__init__()
+        self.irreps_sph = o3.Irreps.spherical_harmonics(lmax=lmax)
+        self.atom_embedding = torch.nn.Linear(num_atom_types, atom_embedding_size)
+
+        self.tp = o3.FullyConnectedTensorProduct(
+            irreps_in1=o3.Irreps([(atom_embedding_size, (0, 0))]),
+            irreps_in2=self.irreps_sph,
+            irreps_out=embedding_irreps,
+        )
+        self.radial_embedding_net = nn.FullyConnectedNet(
+            [self.num_basis, 32, self.tp_value.weight_numel],
+            act=torch.nn.functional.silu,
+        )
+
+    def forward(self, graph: Data) -> Data:
+        graph.x = self.atom_embedding(graph.z)
+        src, dst = graph.edge_index
+        vec = graph.pos[src] - graph.pos[dst]
+        vec_len = vec.norm(dim=1)
+        vec_sph = o3.spherical_harmonics(
+            self.irreps_sph, vec, normalize=True, normalization="component"
+        )
+        radial_embedding = math.soft_one_hot_linspace(
+            vec_len,
+            start=0.0,
+            end=self.max_radius,
+            number=self.num_basis,
+            basis="bessel",
+            cutoff=True,
+        )
+        radial_embedding = self.radial_embedding_net(radial_embedding)
+        node_emb = self.tp(graph.x[src], vec_sph, radial_embedding)
+        return scatter(src=node_emb, index=dst, dim=0)
 
 
 @compile_mode("script")
@@ -98,15 +143,7 @@ class O3AttentionLayer(torch.nn.Module):
             index=src,
             dim=0,
         )
-        # print(
-        #    "SHapes: ",
-        #    edge_weight_cutoff.shape,
-        #    attn_score.shape,
-        #    key.shape,
-        #    query.shape,
-        #    values.shape,
-        #    similarity.shape,
-        # )
+
         return (
             scatter(
                 src=attn_score.relu().sqrt() * values,
