@@ -34,20 +34,22 @@ class O3GraphAttentionNetwork(torch.nn.Module):
         for i in range(num_layers):
             layers.append(
                 O3AttentionLayer(
-                    input_irreps=hidden_irreps if i > 0 else input_irreps,
+                    input_irreps=hidden_irreps,
                     key_irreps=hidden_irreps,
                     query_irreps=hidden_irreps,
-                    value_irreps=hidden_irreps if i < num_layers - 1 else output_irreps,
+                    value_irreps=hidden_irreps,
                     lmax=lmax,
                     num_basis=num_basis,
                     max_radius=self.max_radius,
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
+        self.decoder = o3.Linear(irreps_in=hidden_irreps, irreps_out=output_irreps)
 
     def forward(self, graph: Data) -> torch.Tensor:
         graph.x = self.embedding_layer(graph)
         for layer in self.layers:
             updated_node_features = layer(graph)
-            graph.x = updated_node_features
+            graph.x += updated_node_features
+        graph.x = self.decoder(graph.x)
         return self.aggregate(updated_node_features, batch_index=graph.batch)
