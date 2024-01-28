@@ -23,35 +23,25 @@ class O3GraphAttentionNetwork(torch.nn.Module):
         self.max_radius = max_radius
         super().__init__()
         self.aggregate = MeanOnGraph() if aggregate else IdentityOnGraph()
-        self.embedding_layer = NodeEncoder(
-            num_atom_types=num_atom_types,
-            embedding_irreps=hidden_irreps,
-            lmax=lmax,
-            atom_embedding_size=embedding_size,
-            max_radius=max_radius,
-        )
+        self.embedding_layer = torch.nn.Linear(num_atom_types, embedding_size)
         layers = []
         for i in range(num_layers):
             layers.append(
                 O3AttentionLayer(
-                    input_irreps=hidden_irreps,
+                    input_irreps=hidden_irreps if i > 0 else input_irreps,
                     key_irreps=hidden_irreps,
                     query_irreps=hidden_irreps,
-                    value_irreps=hidden_irreps,
+                    value_irreps=hidden_irreps if i < num_layers - 1 else output_irreps,
                     lmax=lmax,
                     num_basis=num_basis,
                     max_radius=self.max_radius,
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.decoder = o3.FullyConnectedTensorProduct(
-            irreps_in1=hidden_irreps, irreps_in2=hidden_irreps, irreps_out=output_irreps
-        )
 
     def forward(self, graph: Data) -> torch.Tensor:
-        graph.x = self.embedding_layer(graph)
+        graph.x = self.embedding_layer(graph.z)
         for layer in self.layers:
             updated_node_features = layer(graph)
-            graph.x += updated_node_features
-        graph.x = self.decoder(graph.x, graph.x)
-        return self.aggregate(graph.x, batch_index=graph.batch)
+            graph.x = updated_node_features
+        return self.aggregate(updated_node_features, batch_index=graph.batch)
