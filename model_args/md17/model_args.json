@@ -5,7 +5,7 @@
         "model_args":{
             "input_irreps":"64x0e",
             "output_irreps":"1x1o",
-            "hidden_irreps":"64x0e+64x1e+64x2e",
+            "hidden_irreps":"32x0e+32x1e+32x2e",
             "lmax":2,
             "num_basis":64,
             "num_layers":2,

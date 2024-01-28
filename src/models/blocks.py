@@ -24,7 +24,7 @@ class NodeEncoder(torch.nn.Module):
     def __init__(
         self,
         num_atom_types: int = 4,
-        atom_embedding_size: int = 64,
+        atom_embedding_size: int = 32,
         embedding_irreps: str | o3.Irreps = "32x0e + 32x1o + 32x2e",
         num_basis: int = 32,
         max_radius: float = 2.5,
@@ -38,6 +38,7 @@ class NodeEncoder(torch.nn.Module):
             irreps_in1=o3.Irreps([(atom_embedding_size, (0, 1))]),
             irreps_in2=self.irreps_sph,
             irreps_out=embedding_irreps,
+            shared_weights=False,
         )
         self.num_basis = num_basis
         self.max_radius = max_radius
@@ -49,7 +50,7 @@ class NodeEncoder(torch.nn.Module):
     def forward(self, graph: Data) -> torch.Tensor:
         graph.x = self.atom_embedding(graph.z)
         src, dst = graph.edge_index
-        vec = graph.pos[src] - graph.pos[dst]
+        vec = graph.pos[dst] - graph.pos[src]
         vec_len = vec.norm(dim=1)
         vec_sph = o3.spherical_harmonics(
             self.irreps_sph, vec, normalize=True, normalization="component"

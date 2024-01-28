@@ -25,7 +25,7 @@ class O3GraphAttentionNetwork(torch.nn.Module):
         self.aggregate = MeanOnGraph() if aggregate else IdentityOnGraph()
         self.embedding_layer = NodeEncoder(
             num_atom_types=num_atom_types,
-            embedding_irreps=input_irreps,
+            embedding_irreps=hidden_irreps,
             lmax=lmax,
             atom_embedding_size=embedding_size,
             max_radius=max_radius,
@@ -44,12 +44,14 @@ class O3GraphAttentionNetwork(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.decoder = o3.Linear(irreps_in=hidden_irreps, irreps_out=output_irreps)
+        self.decoder = o3.FullyConnectedTensorProduct(
+            irreps_in1=hidden_irreps, irreps_in2=hidden_irreps, irreps_out=output_irreps
+        )
 
     def forward(self, graph: Data) -> torch.Tensor:
         graph.x = self.embedding_layer(graph)
         for layer in self.layers:
             updated_node_features = layer(graph)
             graph.x += updated_node_features
-        graph.x = self.decoder(graph.x)
-        return self.aggregate(updated_node_features, batch_index=graph.batch)
+        graph.x = self.decoder(graph.x, graph.x)
+        return self.aggregate(graph.x, batch_index=graph.batch)
