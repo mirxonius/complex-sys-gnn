@@ -1,0 +1,61 @@
+
+{
+    "o3_transformer":{
+        "model_type":"equivariant_gat",
+        "model_args":{
+            "input_irreps":"64x0e",
+            "output_irreps":"1x1o",
+            "hidden_irreps":"32x0e+32x1e+32x2e",
+            "lmax":2,
+            "num_basis":64,
+            "num_layers":2,
+            "aggregate":false
+            }
+        },
+    "big_o3_transformer":{
+        "model_type":"equivariant_gat",
+        "model_args":{
+            "input_irreps":"64x0e",
+            "output_irreps":"1x1o",
+            "hidden_irreps":"128x0e+128x1e+128x2e",
+            "lmax":2,
+            "num_basis":64,
+            "num_layers":2,
+            "aggregate":false
+        
+            }
+        },
+    "regular_gat":{
+        "model_type":"gat_model",
+        "model_args":{
+            "gat_params":{
+                "in_channels":64,
+                "hidden_channels":100,
+                "edge_dim":3,
+                "num_layers":3,
+                "v2":true
+                },
+            "final_output_dim":3,
+            "head_hidden_layers":3,
+            "aggregate":false
+            }
+        },
+    "mace_model":{
+        "model_type":"mace_model",
+        "model_args":{
+            "mace_params":{
+                "max_ell":2,
+                "correlation":3,
+                "n_dims_in":11,
+                "hidden_irreps":"16x0e + 16x1o + 16x2e",
+                "node_feats_irreps":"16x0e + 16x1o + 16x2e",
+                "edge_feats_irreps":"16x0e",
+                "avg_num_neighbors":10.0,
+                "use_sc":true
+            },
+            "final_prediction_irreps":"1x0e",
+            "aggregate":true
+        
+            }
+        } 
+}

@@ -6,7 +6,7 @@
         "num_layers":3,
         "v2":true
         },
-    "final_output_dim":1,
+    "final_output_dim":3,
     "head_hidden_layers":3,
-    "aggregate":true
+    "aggregate":false
 }
