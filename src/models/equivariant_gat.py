@@ -2,7 +2,7 @@ import torch
 from e3nn import o3
 from torch_geometric.data import Data
 
-from .blocks import O3AttentionLayer
+from .blocks import O3AttentionLayer, NodeEncoder
 from utils.model_utils import MeanOnGraph, IdentityOnGraph
 
 
@@ -23,7 +23,13 @@ class O3GraphAttentionNetwork(torch.nn.Module):
         self.max_radius = max_radius
         super().__init__()
         self.aggregate = MeanOnGraph() if aggregate else IdentityOnGraph()
-        self.atom_embedding = torch.nn.Linear(num_atom_types, embedding_size)
+        self.embedding_layer = NodeEncoder(
+            num_atom_types=num_atom_types,
+            embedding_irreps=input_irreps,
+            lmax=lmax,
+            atom_embedding_size=embedding_size,
+            max_radius=max_radius,
+        )
         layers = []
         for i in range(num_layers):
             layers.append(
@@ -40,7 +46,7 @@ class O3GraphAttentionNetwork(torch.nn.Module):
         self.layers = torch.nn.ModuleList(layers)
 
     def forward(self, graph: Data) -> torch.Tensor:
-        graph.x = self.atom_embedding(graph.z)
+        graph.x = self.embedding_layer(graph)
         for layer in self.layers:
             updated_node_features = layer(graph)
             graph.x = updated_node_features

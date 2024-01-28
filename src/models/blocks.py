@@ -26,6 +26,8 @@ class NodeEncoder(torch.nn.Module):
         num_atom_types: int = 4,
         atom_embedding_size: int = 64,
         embedding_irreps: str | o3.Irreps = "32x0e + 32x1o + 32x2e",
+        num_basis: int = 32,
+        max_radius: float = 2.5,
         lmax: int = 2,
     ):
         super().__init__()
@@ -37,12 +39,14 @@ class NodeEncoder(torch.nn.Module):
             irreps_in2=self.irreps_sph,
             irreps_out=embedding_irreps,
         )
+        self.num_basis = num_basis
+        self.max_radius = max_radius
         self.radial_embedding_net = nn.FullyConnectedNet(
-            [self.num_basis, 32, self.tp_value.weight_numel],
+            [num_basis, 32, self.tp.weight_numel],
             act=torch.nn.functional.silu,
         )
 
-    def forward(self, graph: Data) -> Data:
+    def forward(self, graph: Data) -> torch.Tensor:
         graph.x = self.atom_embedding(graph.z)
         src, dst = graph.edge_index
         vec = graph.pos[src] - graph.pos[dst]
