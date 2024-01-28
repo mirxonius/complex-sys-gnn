@@ -130,6 +130,7 @@ class O3AttentionLayer(torch.nn.Module):
             basis="bessel",
             cutoff=True,
         )
+        
         edge_weight_cutoff = math.soft_unit_step(10 * (1 - vec_len / self.max_radius))
 
         radial_embedding = radial_embedding.mul(self.num_basis**0.5)
