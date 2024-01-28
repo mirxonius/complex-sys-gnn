@@ -29,7 +29,6 @@ class GATModel(torch.nn.Module):
         self.aggregate = MeanOnGraph() if aggregate else IdentityOnGraph()
 
     def forward(self, graph: Data):
-        print("DATA: ", graph)
         src, dst = graph.edge_index
         vec = graph.pos[dst] - graph.pos[src]
         graph.x = self.atom_embedding(graph.z)
