@@ -32,11 +32,11 @@
                 "in_channels":64,
                 "hidden_channels":100,
                 "edge_dim":3,
-                "num_layers":3,
+                "num_layers":5,
                 "v2":true
                 },
             "final_output_dim":3,
-            "head_hidden_layers":3,
+            "head_hidden_layers":1,
             "aggregate":false
             }
         },

@@ -9,7 +9,7 @@ from models.gat_model import GATModel
 from models.mace_model import MaceNet
 from utils.loss_utils import MSE_MAE_Loss
 
-from config_defaults import dataset_dict, Tasks, SupportedLosses, SupportedModels
+from config_defaults import dataset_dict,task_dataset_kwargs, Tasks, SupportedLosses, SupportedModels
 
 
 def set_up_model(model_name, model_args_json):
@@ -30,7 +30,6 @@ def set_up_model(model_name, model_args_json):
         model = MaceNet(**model_args)
 
     else:
-        print(dataset_dict)
         raise ValueError(f"{model_name} is not supported a supported model.")
 
     return model
@@ -45,11 +44,11 @@ def set_up_dataset(
         # train_set = dataset_dict[task](data_dir=dataset_data_dir, split="train")
         # valid_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid")
         # test_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid")
-
     try:
-        train_set = dataset_dict[task](data_dir=dataset_data_dir, split="train")
-        valid_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid")
-        test_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid")
+        dataset_kwargs = task_dataset_kwargs[task]
+        train_set = dataset_dict[task](data_dir=dataset_data_dir, split="train",**dataset_kwargs)
+        valid_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid",**dataset_kwargs)
+        test_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid",**dataset_kwargs)
 
     except:
         raise KeyError(f"Task {task} is not defined")
@@ -61,6 +60,10 @@ def set_up_metric(task):
     match task:
         case Tasks.tri_molecule_forces.value:
             return {"num_outputs": 3}
+        case Tasks.benzene_forces.value:
+            return {"num_outputs": 3}
+        case _:
+            raise ValueError(f"{task} does not have metirc calculator set up implemented.")
 
 
 def set_up_loss(loss: str):

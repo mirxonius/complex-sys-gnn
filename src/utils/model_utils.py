@@ -57,14 +57,15 @@ def make_fcnn(
     out_shape,
     num_hidden_layers=1,
     activation=torch.nn.ReLU(),
-    use_normalization=False,
+    use_normalization=True,
 ):
     layer_sizes = [in_shape] + [hidden_shape] * num_hidden_layers + [out_shape]
     layers = []
     for i in range(len(layer_sizes) - 1):
         if use_normalization:
             layers.append(torch.nn.BatchNorm1d(layer_sizes[i]))
-        layers.append(torch.nn.Linear(layer_sizes[i], layer_sizes[i + 1]))
         if i < len(layer_sizes) - 1:
             layers.append(activation)
+        layers.append(torch.nn.Linear(layer_sizes[i], layer_sizes[i + 1]))
+
     return torch.nn.Sequential(*layers)

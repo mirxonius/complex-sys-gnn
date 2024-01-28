@@ -7,8 +7,8 @@ class Tasks(Enum):
     tri_molecule_energy = "tri_molecule_energy"
     benzene_forces = "benzene_forces"
     benzene_energy = "benzene_energy"
-    uracail_forces = "uracail_forces"
-    uracail_energy = "uracail_energy"
+    uracil_forces = "uracail_forces"
+    uracil_energy = "uracail_energy"
     ethanol_forces = "ethaned_forces"
     ethanol_energy = "ethanol_energy"
     paracetamol = "paracetamol"
@@ -17,9 +17,24 @@ class Tasks(Enum):
 dataset_dict = {
     Tasks.tri_molecule_energy.value: BenzeneEthanolUracilDataset,
     Tasks.tri_molecule_forces.value: BenzeneEthanolUracilDataset,
-    Tasks.paracetamol: ParacetamolDataset,
+    Tasks.paracetamol.value: ParacetamolDataset,
+    Tasks.benzene_forces.value:BenzeneEthanolUracilDataset,
+    Tasks.ethanol_forces.value:BenzeneEthanolUracilDataset,
+    Tasks.uracil_forces.value:BenzeneEthanolUracilDataset,
+
 }
 
+
+task_dataset_kwargs = {
+    Tasks.tri_molecule_energy.value: {},
+    Tasks.tri_molecule_forces.value: {},
+    Tasks.paracetamol.value: {},
+    Tasks.benzene_forces.value:{"molecules":["benzene"]},
+    Tasks.uracil_forces.value:{"molecules":["uracil"]},
+    Tasks.ethanol_forces.value:{"molecules":["ethanol"]}
+
+
+}
 
 class SupportedLosses(Enum):
     mae = "mae"
