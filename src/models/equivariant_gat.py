@@ -40,7 +40,7 @@ class O3GraphAttentionNetwork(torch.nn.Module):
         self.layers = torch.nn.ModuleList(layers)
 
     def forward(self, graph: Data) -> torch.Tensor:
-        graph.x = self.embedding_layer(graph)
+        graph.x = self.embedding_layer(graph.z)
         for layer in self.layers:
             updated_node_features = layer(graph)
             graph.x = updated_node_features
