@@ -35,7 +35,7 @@ class NodeEncoder(torch.nn.Module):
         self.atom_embedding = torch.nn.Linear(num_atom_types, atom_embedding_size)
 
         self.tp = o3.FullyConnectedTensorProduct(
-            irreps_in1=o3.Irreps([(atom_embedding_size, (0, 0))]),
+            irreps_in1=o3.Irreps([(atom_embedding_size, (0, 1))]),
             irreps_in2=self.irreps_sph,
             irreps_out=embedding_irreps,
         )
