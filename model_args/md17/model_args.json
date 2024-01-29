@@ -5,9 +5,9 @@
         "model_args":{
             "input_irreps":"64x0e",
             "output_irreps":"1x1o",
-            "hidden_irreps":"32x0e+32x1e+32x2e",
+            "hidden_irreps":"8x0e+8x1o+8x2e",
             "lmax":2,
-            "num_basis":64,
+            "num_basis":8,
             "num_layers":2,
             "aggregate":false
             }
@@ -17,9 +17,9 @@
         "model_args":{
             "input_irreps":"64x0e",
             "output_irreps":"1x1o",
-            "hidden_irreps":"128x0e+128x1e+128x2e",
+            "hidden_irreps":"128x0e+128x1o+128x2e",
             "lmax":2,
-            "num_basis":64,
+            "num_basis":8,
             "num_layers":2,
             "aggregate":false
         
@@ -30,9 +30,9 @@
             "model_args":{
                 "input_irreps":"64x0e",
                 "output_irreps":"1x1o",
-                "hidden_irreps":"128x0e+128x1e+128x2e",
+                "hidden_irreps":"128x0e+128x1o+128x2e",
                 "lmax":2,
-                "num_basis":64,
+                "num_basis":8,
                 "num_layers":3,
                 "aggregate":false
             
