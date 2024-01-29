@@ -27,29 +27,33 @@ class NodeEncoder(torch.nn.Module):
         atom_embedding_size: int = 64,
         embedding_irreps: str | o3.Irreps = "32x0e + 32x1o + 32x2e",
         lmax: int = 2,
+        num_basis: int = 32,
+        max_radius: float = 2.0,
     ):
         super().__init__()
+        self.max_radius = max_radius
         self.irreps_sph = o3.Irreps.spherical_harmonics(lmax=lmax)
-        self.atom_embedding = torch.nn.Linear(num_atom_types, atom_embedding_size)
-
-        self.tp = o3.FullyConnectedTensorProduct(
-            irreps_in1=o3.Irreps([(atom_embedding_size, (0, 0))]),
-            irreps_in2=self.irreps_sph,
-            irreps_out=embedding_irreps,
+        self.spherical_projection = o3.Linear(
+            irreps_in=self.irreps_sph, irreps_out=embedding_irreps
         )
+        self.atom_embedding = torch.nn.Linear(
+            num_atom_types, self.spherical_projection.irreps_out.dim
+        )
+
+        self.num_basis = num_basis
         self.radial_embedding_net = nn.FullyConnectedNet(
-            [self.num_basis, 32, self.tp_value.weight_numel],
+            [self.num_basis, 32, self.spherical_projection.irreps_out.dim],
             act=torch.nn.functional.silu,
         )
 
     def forward(self, graph: Data) -> Data:
-        graph.x = self.atom_embedding(graph.z)
         src, dst = graph.edge_index
         vec = graph.pos[src] - graph.pos[dst]
         vec_len = vec.norm(dim=1)
         vec_sph = o3.spherical_harmonics(
             self.irreps_sph, vec, normalize=True, normalization="component"
         )
+        spherical_embedding = self.spherical_projection(vec_sph)
         radial_embedding = math.soft_one_hot_linspace(
             vec_len,
             start=0.0,
@@ -58,8 +62,9 @@ class NodeEncoder(torch.nn.Module):
             basis="bessel",
             cutoff=True,
         )
+        atom_embedding = self.atom_embedding(graph.z)[src]
         radial_embedding = self.radial_embedding_net(radial_embedding)
-        node_emb = self.tp(graph.x[src], vec_sph, radial_embedding)
+        node_emb = radial_embedding * spherical_embedding * atom_embedding
         return scatter(src=node_emb, index=dst, dim=0)
 
 
