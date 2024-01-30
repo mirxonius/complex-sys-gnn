@@ -76,10 +76,18 @@ class LightningModelWrapper(pl.LightningModule):
         return self._step(batch, "train")
 
     def predict_step(self, batch, batch_idx) -> Any:
-        return self._step(batch,"predict")
+        return self._step(batch, "predict")
 
     def on_predict_epoch_end(self) -> None:
-        return NotImplemented
+        avg_loss = torch.stack([x for x in self.step_outputs["predict"]["loss"]]).mean()
+        y_pred = torch.cat([x for x in self.step_outputs["predict"]["y_pred"]])
+        y_true = torch.cat([x for x in self.step_outputs["predict"]["y_true"]])
+        for k in self.step_outputs["predict"].keys():
+            self.step_outputs["predict"][k].clear()
+        metric_dict = self.metric_calculator(y_pred, y_true, "predict")
+        metric_dict.update({f"predict_MSE_loss": avg_loss})
+        return metric_dict
+
     def validation_step(self, batch, batch_idx):
         with torch.no_grad():
             return self._step(batch, "valid")
