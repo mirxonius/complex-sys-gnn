@@ -59,6 +59,7 @@ if __name__ == "__main__":
         num_workers=4,
     )
 
+
     log_dir = Path(log_dir, args.task)
     os.makedirs(log_dir, exist_ok=True)
 
@@ -70,3 +71,10 @@ if __name__ == "__main__":
     trainer.fit(model, train_loader, valid_loader)
 
     trainer.test(model, test_loader)
+    
+
+    _,__,extrapolation_dataset=set_up_dataset(
+        task="paracetamol",dataset_data_dir=args.data_dir
+    )
+    extrapolation_loader = DataLoader(extrapolation_dataset,batch_size=args.batch_size)
+    trainer.predict(model,extrapolation_loader)

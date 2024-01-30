@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Any, Iterable
 from collections import defaultdict
 import torch
 from torch.optim import Adam, lr_scheduler
@@ -75,6 +75,11 @@ class LightningModelWrapper(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         return self._step(batch, "train")
 
+    def predict_step(self, batch, batch_idx) -> Any:
+        return self._step(batch,"predict")
+
+    def on_predict_epoch_end(self) -> None:
+        return NotImplemented
     def validation_step(self, batch, batch_idx):
         with torch.no_grad():
             return self._step(batch, "valid")

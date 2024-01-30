@@ -36,7 +36,7 @@ def set_up_model(model_name, model_args_json):
 
 
 def set_up_dataset(
-    task, dataset_data_dir: str | Path = None, dataset_index_dir: str | Path = None
+    task, dataset_data_dir: str | Path = None
 ):
     if dataset_data_dir is None:
         dataset_data_dir = Path("../../data/md17")
@@ -44,14 +44,14 @@ def set_up_dataset(
         # train_set = dataset_dict[task](data_dir=dataset_data_dir, split="train")
         # valid_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid")
         # test_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid")
-    try:
-        dataset_kwargs = task_dataset_kwargs[task]
-        train_set = dataset_dict[task](data_dir=dataset_data_dir, split="train",**dataset_kwargs)
-        valid_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid",**dataset_kwargs)
-        test_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid",**dataset_kwargs)
+    #try:
+    dataset_kwargs = task_dataset_kwargs[task]
+    train_set = dataset_dict[task](data_dir=dataset_data_dir, split="train",**dataset_kwargs)
+    valid_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid",**dataset_kwargs)
+    test_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid",**dataset_kwargs)
 
-    except:
-        raise KeyError(f"Task {task} is not defined")
+    #except:
+    #    raise KeyError(f"Task {task} is not defined")
 
     return train_set, valid_set, test_set
 
