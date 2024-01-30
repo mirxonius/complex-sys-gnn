@@ -58,7 +58,7 @@ def set_up_dataset(
 
 def set_up_metric(task):
     match task:
-        case Tasks.tri_molecule_forces.value:
+        case Tasks.multi_molecule_forces.value:
             return {"num_outputs": 3}
         case Tasks.benzene_forces.value:
             return {"num_outputs": 3}

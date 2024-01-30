@@ -27,7 +27,7 @@ parser.add_argument(
 )
 parser.add_argument("--data_dir", type=str, default=None)
 parser.add_argument("--loss", type=str, default="mse")
-
+parser.add_argument("--extrapolate",type=bool,default=False)
 log_dir = Path("./logs/")
 
 if __name__ == "__main__":
@@ -44,7 +44,10 @@ if __name__ == "__main__":
         task=args.task,
         dataset_data_dir=args.data_dir,
     )
-
+    if args.extrapolate:
+        _, __, test_set = set_up_dataset(
+            task="paracetamol", dataset_data_dir=args.data_dir
+        )
     train_loader = DataLoader(
         train_set, batch_size=args.batch_size, shuffle=True, num_workers=4
     )
@@ -71,9 +74,5 @@ if __name__ == "__main__":
 
     trainer.test(model, test_loader)
 
-    _, __, extrapolation_dataset = set_up_dataset(
-        task="paracetamol", dataset_data_dir=args.data_dir
-    )
-    extrapolation_loader = DataLoader(extrapolation_dataset, batch_size=args.batch_size)
-    prediction_metric = trainer.predict(model, extrapolation_loader)
-    print(prediction_metric)
+
+

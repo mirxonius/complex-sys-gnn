@@ -8,14 +8,14 @@ from torch_geometric.data import Data
 from torch_geometric.nn.pool import radius_graph
 
 
-class BenzeneEthanolUracilDataset(Dataset):
+class MultiMoleculeDataset(Dataset):
     def __init__(
         self,
         data_dir: Path | str,
         index_file: str | Path = "benzene_ethanol_uracil_index.json",
         split: str = "train",
         radius: float = 1.875,
-        molecules: list[str] = ["benzene", "ethanol", "uracil"],
+        molecules: list[str] = ["benzene", "ethanol", "uracil","aspirin"],
     ) -> None:
         """
         Args:
@@ -33,10 +33,11 @@ class BenzeneEthanolUracilDataset(Dataset):
                 "train":{
                 "benzene":[0,2,11,832,...], indices taken from benzene dataset for training
                 "uracil": [1,2,3,72,...],
-                "ethanol": [2,22,123,...]
+                "ethanol": [2,22,123,...],
+                "aspirin": [488,12,32,...]
                 },
-                "valid":{"benzene":[...],"uracil":[...],"ethanol":[...]},
-                "test":{"benzene":[...],"uracil":[...],"ethanol":[...]}
+                "valid":{"benzene":[...],"uracil":[...],"ethanol":[...],"aspirin": [...]},
+                "test":{"benzene":[...],"uracil":[...],"ethanol":[...],"aspirin": [...]}
             }
             """
             self.indexing = json.load(indexing_data)[split]
@@ -45,25 +46,11 @@ class BenzeneEthanolUracilDataset(Dataset):
         self.z_table = [1, 6, 7, 8]
         self.z_to_index_map = np.vectorize(self.z_to_index)
         datasets = []
-        if "benzene" in molecules:
+        for molecule in molecules:
             datasets.append(
                 Subset(
-                    MD17(root=data_dir, name="revised benzene"),
-                    indices=self.indexing["benzene"],
-                )
-            )
-        if "uracil" in molecules:
-            datasets.append(
-                Subset(
-                    MD17(root=data_dir, name="revised uracil"),
-                    indices=self.indexing["uracil"],
-                )
-            )
-        if "ethanol" in molecules:
-            datasets.append(
-                Subset(
-                    MD17(root=data_dir, name="revised ethanol"),
-                    indices=self.indexing["ethanol"],
+                    MD17(root=data_dir, name=f"revised {molecule}"),
+                    indices=self.indexing[molecule],
                 )
             )
         self.data = ConcatDataset(datasets)

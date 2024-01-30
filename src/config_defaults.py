@@ -1,10 +1,10 @@
 from enum import Enum
-from datasets.Md17_dataset import ParacetamolDataset, BenzeneEthanolUracilDataset
+from datasets.Md17_dataset import ParacetamolDataset, MultiMoleculeDataset
 
 
 class Tasks(Enum):
-    tri_molecule_forces = "tri_molecule_forces"
-    tri_molecule_energy = "tri_molecule_energy"
+    multi_molecule_forces = "multi_molecule_forces"
+    multi_molecule_energy = "multi_molecule_energy"
     benzene_forces = "benzene_forces"
     benzene_energy = "benzene_energy"
     uracil_forces = "uracail_forces"
@@ -15,19 +15,19 @@ class Tasks(Enum):
 
 
 dataset_dict = {
-    Tasks.tri_molecule_energy.value: BenzeneEthanolUracilDataset,
-    Tasks.tri_molecule_forces.value: BenzeneEthanolUracilDataset,
+    Tasks.multi_molecule_energy.value: MultiMoleculeDataset,
+    Tasks.multi_molecule_forces.value: MultiMoleculeDataset,
     Tasks.paracetamol.value: ParacetamolDataset,
-    Tasks.benzene_forces.value:BenzeneEthanolUracilDataset,
-    Tasks.ethanol_forces.value:BenzeneEthanolUracilDataset,
-    Tasks.uracil_forces.value:BenzeneEthanolUracilDataset,
+    Tasks.benzene_forces.value:MultiMoleculeDataset,
+    Tasks.ethanol_forces.value:MultiMoleculeDataset,
+    Tasks.uracil_forces.value:MultiMoleculeDataset,
 
 }
 
 
 task_dataset_kwargs = {
-    Tasks.tri_molecule_energy.value: {},
-    Tasks.tri_molecule_forces.value: {},
+    Tasks.multi_molecule_energy.value: {},
+    Tasks.multi_molecule_forces.value: {},
     Tasks.paracetamol.value: {},
     Tasks.benzene_forces.value:{"molecules":["benzene"]},
     Tasks.uracil_forces.value:{"molecules":["uracil"]},
