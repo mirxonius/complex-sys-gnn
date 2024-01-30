@@ -1,8 +1,7 @@
 *.ipynb
 !data/
-!data/md17
-!data/md17/*.json
 data/*
+!data/md17/*.json
 !logs/
 logs/*
 __pycache__/
