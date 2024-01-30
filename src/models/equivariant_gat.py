@@ -10,7 +10,6 @@ class O3GraphAttentionNetwork(torch.nn.Module):
     def __init__(
         self,
         num_layers: int,
-        input_irreps: str | o3.Irreps,
         output_irreps: str | o3.Irreps,
         hidden_irreps: str | o3.Irreps,
         lmax: int,
