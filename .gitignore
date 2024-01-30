@@ -1,6 +1,6 @@
 *.ipynb
 !data/
-!data/md17/*_indexing.json
+!data/md17/*.json
 data/*
 !logs/
 logs/*
