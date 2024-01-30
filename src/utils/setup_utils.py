@@ -36,7 +36,7 @@ def set_up_model(model_name, model_args_json):
 
 
 def set_up_dataset(
-    task, dataset_data_dir: str | Path = None
+    task, dataset_data_dir: str | Path = None,training_noise:bool = False
 ):
     if dataset_data_dir is None:
         dataset_data_dir = Path("../../data/md17")
@@ -46,6 +46,8 @@ def set_up_dataset(
         # test_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid")
     #try:
     dataset_kwargs = task_dataset_kwargs[task]
+    if task != Tasks.paracetamol.value:
+        dataset_kwargs["training_noise"] = training_noise
     train_set = dataset_dict[task](data_dir=dataset_data_dir, split="train",**dataset_kwargs)
     valid_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid",**dataset_kwargs)
     test_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid",**dataset_kwargs)

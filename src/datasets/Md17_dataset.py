@@ -7,15 +7,17 @@ from torch_geometric.datasets import MD17
 from torch_geometric.data import Data
 from torch_geometric.nn.pool import radius_graph
 
+from utils.dataset_utils import RadnomNoise
 
 class MultiMoleculeDataset(Dataset):
     def __init__(
         self,
         data_dir: Path | str,
-        index_file: str | Path = "benzene_ethanol_uracil_index.json",
+        index_file: str | Path = "multimolecule_index.json",
         split: str = "train",
         radius: float = 1.875,
         molecules: list[str] = ["benzene", "ethanol", "uracil","aspirin"],
+        training_noise:bool = False
     ) -> None:
         """
         Args:
@@ -54,6 +56,12 @@ class MultiMoleculeDataset(Dataset):
                 )
             )
         self.data = ConcatDataset(datasets)
+        if training_noise:
+            self.force_transform = RadnomNoise()
+            self.pos_transform = RadnomNoise()
+        else:
+            self.force_transform = torch.nn.Identity()
+            self.pos_transform = torch.nn.Identity()
 
     def __len__(self):
         return len(self.data)
@@ -65,6 +73,8 @@ class MultiMoleculeDataset(Dataset):
         example.z = torch.nn.functional.one_hot(
             torch.tensor(Z_ind), num_classes=4
         ).float()
+        example.pos = self.pos_transform(example.pos)
+        example.force = self.force_transform(example.force)
         return example
 
     def z_to_index(self, Z: int) -> int:
