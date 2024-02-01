@@ -3,7 +3,6 @@
     "o3_transformer":{
         "model_type":"equivariant_gat",
         "model_args":{
-            "input_irreps":"64x0e",
             "output_irreps":"1x1o",
             "hidden_irreps":"8x0e+8x1o+8x2e",
             "lmax":2,
@@ -15,7 +14,6 @@
     "big_o3_transformer":{
         "model_type":"equivariant_gat",
         "model_args":{
-            "input_irreps":"64x0e",
             "output_irreps":"1x1o",
             "hidden_irreps":"32x0e+32x1o+32x2e",
             "lmax":2,
@@ -28,7 +26,6 @@
         "huge_o3_transformer":{
             "model_type":"equivariant_gat",
             "model_args":{
-                "input_irreps":"64x0e",
                 "output_irreps":"1x1o",
                 "hidden_irreps":"64x0e+64x1o+64x2e",
                 "lmax":2,
