@@ -14,10 +14,14 @@ class MaceNet(torch.nn.Module):
     def __init__(
         self,
         mace_params: dict,
+        num_atom_types: int = 4,
         final_prediction_irreps: str | o3.Irreps = "1x0e",
         aggregate: bool = True,
     ):
         super().__init__()
+
+        self.embedding_layer = torch.nn.Linear(num_atom_types, mace_params["n_dims_in"])
+
         second_layer_params = {**mace_params}
         second_layer_params["n_dims_in"] = o3.Irreps(mace_params["hidden_irreps"]).dim
         self.learable_node_features1 = torch.nn.Linear(

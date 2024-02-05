@@ -11,7 +11,7 @@ class GATModel(torch.nn.Module):
         gat_params: dict,
         final_output_dim: int = 1,
         head_hidden_layers: int = 3,
-        use_normalization_in_head: bool = False,
+        use_normalization_in_head: bool = True,
         aggregate: bool = False,
         num_atom_types: int = 4,
         embedding_size: int = 64,
