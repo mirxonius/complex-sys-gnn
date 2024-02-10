@@ -17,7 +17,8 @@ class MultiMoleculeDataset(Dataset):
         split: str = "train",
         radius: float = 1.875,
         molecules: list[str] = ["benzene", "ethanol", "uracil","aspirin"],
-        training_noise:bool = False
+        training_noise:bool = False,
+        extra_small:bool = False,
     ) -> None:
         """
         Args:
@@ -56,6 +57,14 @@ class MultiMoleculeDataset(Dataset):
                 )
             )
         self.data = ConcatDataset(datasets)
+        if extra_small:
+            self.data = Subset(self.data,           
+            indices=list(range(0, 100))
+            + list(range(1000, 1100))
+            + list(range(2000, 2100)) 
+            + list(range(3000, 3100)))
+        
+
         if training_noise:
             self.force_transform = RadnomNoise()
             self.pos_transform = RadnomNoise()

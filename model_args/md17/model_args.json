@@ -38,7 +38,7 @@
             "model_type":"equivariant_gat",
             "model_args":{
                     "output_irreps":"1x1o",
-                    "hidden_irreps":"32x0e + 16x1o + 8x2e + 8x3o + 8x4e",
+                    "hidden_irreps":"32x0e + 16x1o + 8x2e + 8x3o",
                     "lmax":4,
                     "num_basis":8,
                     "num_layers":3,

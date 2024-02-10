@@ -12,7 +12,7 @@ from utils.setup_utils import set_up_model, set_up_dataset, set_up_metric, set_u
 
 
 parser = ArgumentParser()
-parser.add_argument("--experiment_name", default="l_variation", type=str)
+parser.add_argument("--experiment_name", default="extra_small_testing", type=str)
 parser.add_argument("--num_epochs", type=int, default=20)
 parser.add_argument("--lr", type=float, default=1e-2)
 parser.add_argument("--batch_size", type=int, default=128)
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     trainer.fit(model, train_loader, valid_loader)
 
     trainer.test(model, test_loader)
-
-    trainer.test(model,paracetamol_test_set)
+    if args.extrapolate:
+        trainer.test(model,paracetamol_test_set)
 
 
