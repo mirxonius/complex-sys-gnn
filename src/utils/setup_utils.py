@@ -1,15 +1,19 @@
 import json
 from pathlib import Path
-import os
-import sys
 import torch
-
+from torch.utils.data import Subset
 from models.equivariant_gat import O3GraphAttentionNetwork
 from models.gat_model import GATModel
 from models.mace_model import MaceNet
 from utils.loss_utils import MSE_MAE_Loss,HuberScalarLoss
 
-from config_defaults import dataset_dict,task_dataset_kwargs, Tasks, SupportedLosses, SupportedModels
+from config_defaults import (
+    dataset_dict,
+    task_dataset_kwargs,
+    Tasks,
+    SupportedLosses,
+    SupportedModels,
+)
 
 
 def set_up_model(model_name, model_args_json):
@@ -36,7 +40,10 @@ def set_up_model(model_name, model_args_json):
 
 
 def set_up_dataset(
-    task, dataset_data_dir: str | Path = None,training_noise:bool = False
+    task,
+    dataset_data_dir: str | Path = None,
+    training_noise: bool = False,
+    extra_small: bool = False,
 ):
     if dataset_data_dir is None:
         dataset_data_dir = Path("../../data/md17")
@@ -44,15 +51,28 @@ def set_up_dataset(
         # train_set = dataset_dict[task](data_dir=dataset_data_dir, split="train")
         # valid_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid")
         # test_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid")
-    #try:
+    # try:
     dataset_kwargs = task_dataset_kwargs[task]
     if task != Tasks.paracetamol.value:
         dataset_kwargs["training_noise"] = training_noise
-    train_set = dataset_dict[task](data_dir=dataset_data_dir, split="train",**dataset_kwargs)
-    valid_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid",**dataset_kwargs)
-    test_set = dataset_dict[task](data_dir=dataset_data_dir, split="valid",**dataset_kwargs)
+    train_set = dataset_dict[task](
+        data_dir=dataset_data_dir, split="train", **dataset_kwargs
+    )
+    if extra_small:
+        train_set, _ = Subset(
+            train_set,
+            indices=list(range(0, 100))
+            + list(range(1000, 1100))
+            + list(range(2000, 2100) + list(range(3000, 3100))),
+        )
+    valid_set = dataset_dict[task](
+        data_dir=dataset_data_dir, split="valid", **dataset_kwargs
+    )
+    test_set = dataset_dict[task](
+        data_dir=dataset_data_dir, split="valid", **dataset_kwargs
+    )
 
-    #except:
+    # except:
     #    raise KeyError(f"Task {task} is not defined")
 
     return train_set, valid_set, test_set
@@ -65,7 +85,9 @@ def set_up_metric(task):
         case Tasks.benzene_forces.value:
             return {"num_outputs": 3}
         case _:
-            raise ValueError(f"{task} does not have metirc calculator set up implemented.")
+            raise ValueError(
+                f"{task} does not have metirc calculator set up implemented."
+            )
 
 
 def set_up_loss(loss: str):

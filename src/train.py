@@ -27,8 +27,9 @@ parser.add_argument(
 )
 parser.add_argument("--data_dir", type=str, default="/home/fmirkovic/user_data/fmirkovic/diplomski_datasets/molecules/md17")
 parser.add_argument("--loss", type=str, default="mse")
-parser.add_argument("--extrapolate",type=bool,default=False)
-parser.add_argument("--training_noise",type=bool,default=False)
+parser.add_argument("--extrapolate", type=bool, default=False)
+parser.add_argument("--training_noise", type=bool, default=False)
+parser.add_argument("--extra_small", type=bool, default=False)
 log_dir = Path("./logs/")
 
 if __name__ == "__main__":
@@ -42,8 +43,7 @@ if __name__ == "__main__":
     )
     print("MODEL IS READY")
     train_set, valid_set, test_set = set_up_dataset(
-        task=args.task,
-        dataset_data_dir=args.data_dir,
+        task=args.task, dataset_data_dir=args.data_dir, extra_small=args.extra_small
     )
     if args.extrapolate:
         _, __, paracetamol_test_set = set_up_dataset(
@@ -62,7 +62,7 @@ if __name__ == "__main__":
         batch_size=args.batch_size,
         num_workers=4,
     )
-    print("DATASET LEN: ",len(train_set))
+    print("DATASET LEN: ", len(train_set))
 
     log_dir = Path(log_dir, args.task)
     os.makedirs(log_dir, exist_ok=True)
