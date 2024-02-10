@@ -7,7 +7,7 @@ import torch
 from models.equivariant_gat import O3GraphAttentionNetwork
 from models.gat_model import GATModel
 from models.mace_model import MaceNet
-from utils.loss_utils import MSE_MAE_Loss
+from utils.loss_utils import MSE_MAE_Loss,HuberScalarLoss
 
 from config_defaults import dataset_dict,task_dataset_kwargs, Tasks, SupportedLosses, SupportedModels
 
@@ -78,5 +78,7 @@ def set_up_loss(loss: str):
             return MSE_MAE_Loss()
         case SupportedLosses.huber.value:
             return torch.nn.HuberLoss()
+        case SupportedLosses.huber_scalar.value:
+            return HuberScalarLoss(alpha=2.0)
         case _:
             raise ValueError(f"{loss} is not supported!")

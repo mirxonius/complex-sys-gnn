@@ -12,7 +12,7 @@ from utils.setup_utils import set_up_model, set_up_dataset, set_up_metric, set_u
 
 
 parser = ArgumentParser()
-parser.add_argument("--experiment_name", default="equivariant_gat", type=str)
+parser.add_argument("--experiment_name", default="l_variation", type=str)
 parser.add_argument("--num_epochs", type=int, default=20)
 parser.add_argument("--lr", type=float, default=1e-2)
 parser.add_argument("--batch_size", type=int, default=128)
@@ -25,7 +25,7 @@ parser.add_argument(
     type=str,
     help=".json file containing model parameters, since they can be very long.",
 )
-parser.add_argument("--data_dir", type=str, default=None)
+parser.add_argument("--data_dir", type=str, default="/home/fmirkovic/user_data/fmirkovic/diplomski_datasets/molecules/md17")
 parser.add_argument("--loss", type=str, default="mse")
 parser.add_argument("--extrapolate",type=bool,default=False)
 parser.add_argument("--training_noise",type=bool,default=False)
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     metric_calc_kwargs = set_up_metric(args.task)
     loss = set_up_loss(args.loss)
     model = LightningModelWrapper(
-        model=model, lr=args.lr, compile=args.compile, **metric_calc_kwargs
+        model=model, lr=args.lr, compile=args.compile,loss_fn=loss ,**metric_calc_kwargs
     )
     print("MODEL IS READY")
     train_set, valid_set, test_set = set_up_dataset(
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         dataset_data_dir=args.data_dir,
     )
     if args.extrapolate:
-        _, __, test_set = set_up_dataset(
+        _, __, paracetamol_test_set = set_up_dataset(
             task="paracetamol", dataset_data_dir=args.data_dir,training_noise=args.training_noise
         )
     train_loader = DataLoader(
@@ -75,5 +75,7 @@ if __name__ == "__main__":
     trainer.fit(model, train_loader, valid_loader)
 
     trainer.test(model, test_loader)
+
+    trainer.test(model,paracetamol_test_set)
 
 

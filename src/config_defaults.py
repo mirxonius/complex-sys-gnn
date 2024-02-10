@@ -41,6 +41,7 @@ class SupportedLosses(Enum):
     mse = "mse"
     mse_mae = "mse_mae"
     huber = "huber"
+    huber_scalar = "huber_scalar"
 
 
 class SupportedModels(Enum):
@@ -48,13 +49,6 @@ class SupportedModels(Enum):
     gate_equiv_model = "gate_equiv_model"
     mace_model = "mace_model"
     equivariant_gat = "equivariant_gat"
-
-
-class SupportedDatasets(Enum):
-    QM9 = "QM9"
-    top_tagging = "top_tagging"
-    flag = "flag"
-    aero = "aero"
 
 
 batch_size = 128
