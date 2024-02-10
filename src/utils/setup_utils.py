@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import torch
-from torch.utils.data import random_split
+from torch.utils.data import Subset
 from models.equivariant_gat import O3GraphAttentionNetwork
 from models.gat_model import GATModel
 from models.mace_model import MaceNet
@@ -59,7 +59,12 @@ def set_up_dataset(
         data_dir=dataset_data_dir, split="train", **dataset_kwargs
     )
     if extra_small:
-        train_set, _ = random_split(train_set, (0.1, 0.9))
+        train_set, _ = Subset(
+            train_set,
+            indices=list(range(0, 100))
+            + list(range(1000, 1100))
+            + list(range(2000, 2100) + list(range(3000, 3100))),
+        )
     valid_set = dataset_dict[task](
         data_dir=dataset_data_dir, split="valid", **dataset_kwargs
     )
