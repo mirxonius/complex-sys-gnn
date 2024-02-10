@@ -103,6 +103,7 @@ class ParacetamolDataset(Dataset):
         index_file: str | Path = "paracetamol_index.json",
         split="test",
         radius: float = 1.875,
+        extra_small=None
     ) -> None:
         """
         Args:

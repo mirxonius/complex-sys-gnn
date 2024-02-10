@@ -55,6 +55,8 @@ def set_up_dataset(
     dataset_kwargs = task_dataset_kwargs[task]
     if task != Tasks.paracetamol.value:
         dataset_kwargs["training_noise"] = training_noise
+    else:
+        extra_small=False
     train_set = dataset_dict[task](
         data_dir=dataset_data_dir, split="train", extra_small=extra_small,**dataset_kwargs
     )
