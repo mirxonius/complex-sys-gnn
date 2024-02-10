@@ -27,8 +27,9 @@ parser.add_argument(
 )
 parser.add_argument("--data_dir", type=str, default=None)
 parser.add_argument("--loss", type=str, default="mse")
-parser.add_argument("--extrapolate",type=bool,default=False)
-parser.add_argument("--training_noise",type=bool,default=False)
+parser.add_argument("--extrapolate", type=bool, default=False)
+parser.add_argument("--training_noise", type=bool, default=False)
+parser.add_argument("--extra_small", type=bool, default=False)
 log_dir = Path("./logs/")
 
 if __name__ == "__main__":
@@ -42,12 +43,13 @@ if __name__ == "__main__":
     )
     print("MODEL IS READY")
     train_set, valid_set, test_set = set_up_dataset(
-        task=args.task,
-        dataset_data_dir=args.data_dir,
+        task=args.task, dataset_data_dir=args.data_dir, extra_small=args.extra_small
     )
     if args.extrapolate:
         _, __, test_set = set_up_dataset(
-            task="paracetamol", dataset_data_dir=args.data_dir,training_noise=args.training_noise
+            task="paracetamol",
+            dataset_data_dir=args.data_dir,
+            training_noise=args.training_noise,
         )
     train_loader = DataLoader(
         train_set, batch_size=args.batch_size, shuffle=True, num_workers=4
@@ -62,7 +64,7 @@ if __name__ == "__main__":
         batch_size=args.batch_size,
         num_workers=4,
     )
-    print("DATASET LEN: ",len(train_set))
+    print("DATASET LEN: ", len(train_set))
 
     log_dir = Path(log_dir, args.task)
     os.makedirs(log_dir, exist_ok=True)
@@ -75,5 +77,3 @@ if __name__ == "__main__":
     trainer.fit(model, train_loader, valid_loader)
 
     trainer.test(model, test_loader)
-
-
