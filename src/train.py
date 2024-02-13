@@ -12,7 +12,7 @@ from utils.setup_utils import set_up_model, set_up_dataset, set_up_metric, set_u
 
 
 parser = ArgumentParser()
-parser.add_argument("--experiment_name", default="extra_small_testing", type=str)
+parser.add_argument("--experiment_name", default="extra_small", type=str)
 parser.add_argument("--num_epochs", type=int, default=20)
 parser.add_argument("--lr", type=float, default=1e-2)
 parser.add_argument("--batch_size", type=int, default=128)
@@ -49,6 +49,8 @@ if __name__ == "__main__":
         _, __, paracetamol_test_set = set_up_dataset(
             task="paracetamol", dataset_data_dir=args.data_dir,training_noise=args.training_noise
         )
+        paracetamol_loader = DataLoader(paracetamol_test_set,batch_size=args.batch_size)
+        
     train_loader = DataLoader(
         train_set, batch_size=args.batch_size, shuffle=True, num_workers=4
     )
@@ -68,7 +70,7 @@ if __name__ == "__main__":
     os.makedirs(log_dir, exist_ok=True)
 
     # profiler = "simple
-    logger = TensorBoardLogger(log_dir, name=args.model)
+    logger = TensorBoardLogger(log_dir, name=args.model + f"/{args.experiment_name}")
     trainer = pl.Trainer(
         logger=logger, max_epochs=args.num_epochs, accelerator="gpu", devices=[0]
     )
@@ -76,6 +78,6 @@ if __name__ == "__main__":
 
     trainer.test(model, test_loader)
     if args.extrapolate:
-        trainer.test(model,paracetamol_test_set)
+        trainer.test(model,paracetamol_loader)
 
 
