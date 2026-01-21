@@ -1,8 +1,16 @@
+"""
+Configuration defaults and enumerations for supported tasks, models, and losses.
+
+This module defines the available tasks, models, and loss functions for the
+molecular dynamics GNN training pipeline.
+"""
+
 from enum import Enum
 from datasets.Md17_dataset import ParacetamolDataset, MultiMoleculeDataset
 
 
 class Tasks(Enum):
+    """Supported training tasks on MD17 dataset."""
     multi_molecule_forces = "multi_molecule_forces"
     multi_molecule_energy = "multi_molecule_energy"
     benzene_forces = "benzene_forces"
@@ -14,29 +22,29 @@ class Tasks(Enum):
     paracetamol = "paracetamol"
 
 
+# Maps task names to their corresponding dataset classes
 dataset_dict = {
     Tasks.multi_molecule_energy.value: MultiMoleculeDataset,
     Tasks.multi_molecule_forces.value: MultiMoleculeDataset,
     Tasks.paracetamol.value: ParacetamolDataset,
-    Tasks.benzene_forces.value:MultiMoleculeDataset,
-    Tasks.ethanol_forces.value:MultiMoleculeDataset,
-    Tasks.uracil_forces.value:MultiMoleculeDataset,
-
+    Tasks.benzene_forces.value: MultiMoleculeDataset,
+    Tasks.ethanol_forces.value: MultiMoleculeDataset,
+    Tasks.uracil_forces.value: MultiMoleculeDataset,
 }
 
-
+# Task-specific dataset keyword arguments
 task_dataset_kwargs = {
     Tasks.multi_molecule_energy.value: {},
     Tasks.multi_molecule_forces.value: {},
     Tasks.paracetamol.value: {},
-    Tasks.benzene_forces.value:{"molecules":["benzene"]},
-    Tasks.uracil_forces.value:{"molecules":["uracil"]},
-    Tasks.ethanol_forces.value:{"molecules":["ethanol"]}
-
-
+    Tasks.benzene_forces.value: {"molecules": ["benzene"]},
+    Tasks.uracil_forces.value: {"molecules": ["uracil"]},
+    Tasks.ethanol_forces.value: {"molecules": ["ethanol"]},
 }
 
+
 class SupportedLosses(Enum):
+    """Available loss functions for training."""
     mae = "mae"
     mse = "mse"
     mse_mae = "mse_mae"
@@ -45,12 +53,14 @@ class SupportedLosses(Enum):
 
 
 class SupportedModels(Enum):
+    """Available model architectures."""
     gat_model = "gat_model"
     gate_equiv_model = "gate_equiv_model"
     mace_model = "mace_model"
     equivariant_gat = "equivariant_gat"
 
 
+# Default hyperparameters
 batch_size = 128
 num_epochs = 20
 lr = 1e-2
