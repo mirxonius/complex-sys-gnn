@@ -1,3 +1,9 @@
+"""
+Utility functions and modules for graph neural networks.
+
+Includes aggregation operations, softmax on graphs, and network builders.
+"""
+
 import torch
 from torch_scatter import scatter
 
@@ -6,9 +12,17 @@ def softmax_on_graph(
     input: torch.Tensor, index: torch.LongTensor, dim: int = 0
 ) -> torch.Tensor:
     """
-    Performs numerically stable softmax on graph i.e.
-    aggregates messages from neighboring nodes where
-    the message weights are calculated using softmax.
+    Numerically stable softmax for graph-structured data.
+
+    Computes softmax over messages grouped by index (e.g., edges → nodes).
+
+    Args:
+        input: Values to normalize
+        index: Grouping indices (e.g., destination node for each edge)
+        dim: Dimension to reduce over
+
+    Returns:
+        Normalized values with softmax applied per group
     """
     stabilizer = scatter(src=input, index=index, dim=dim, reduce="max")
     exp = torch.exp(input - stabilizer[index])
@@ -18,6 +32,8 @@ def softmax_on_graph(
 
 
 class Mean(torch.nn.Module):
+    """Simple mean aggregation module."""
+
     def __init__(self, dim=0, keepdim=False) -> None:
         super().__init__()
         self.dim = dim
@@ -28,12 +44,28 @@ class Mean(torch.nn.Module):
 
 
 class MeanOnGraph(torch.nn.Module):
+    """
+    Mean aggregation for graph data.
+
+    Aggregates node features to graph-level by averaging over batch indices.
+    """
+
     def __init__(self, dim=0, keepdim=False) -> None:
         super().__init__()
         self.dim = dim
         self.keepdim = keepdim
 
     def forward(self, node_features, batch_index=None):
+        """
+        Aggregate node features to graph level.
+
+        Args:
+            node_features: Node-level features [num_nodes, feature_dim]
+            batch_index: Batch assignment for each node
+
+        Returns:
+            Graph-level features (averaged over nodes in each graph)
+        """
         if batch_index is None:
             return torch.mean(node_features, dim=self.dim, keepdim=self.keepdim)
         return scatter(
@@ -42,6 +74,12 @@ class MeanOnGraph(torch.nn.Module):
 
 
 class IdentityOnGraph(torch.nn.Module):
+    """
+    Identity operation (no aggregation).
+
+    Used for node-level predictions where no graph-level pooling is needed.
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -59,6 +97,20 @@ def make_fcnn(
     activation=torch.nn.ReLU(),
     use_normalization=True,
 ):
+    """
+    Build a fully connected neural network.
+
+    Args:
+        in_shape: Input dimension
+        hidden_shape: Hidden layer dimension
+        out_shape: Output dimension
+        num_hidden_layers: Number of hidden layers
+        activation: Activation function
+        use_normalization: Whether to use batch normalization
+
+    Returns:
+        Sequential neural network
+    """
     layer_sizes = [in_shape] + [hidden_shape] * num_hidden_layers + [out_shape]
     layers = []
     for i in range(len(layer_sizes) - 1):

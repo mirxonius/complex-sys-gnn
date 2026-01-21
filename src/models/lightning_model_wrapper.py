@@ -1,17 +1,26 @@
-from typing import Any, Iterable
+"""
+PyTorch Lightning wrapper for GNN models.
+
+Handles training/validation/test loops, optimization, and metric logging.
+"""
+
+from typing import Any
 from collections import defaultdict
 import torch
 from torch.optim import Adam, lr_scheduler
 import pytorch_lightning as pl
 from torch_geometric.data import Data
 
-
 from utils.metric_calc import RegressionMetricCalc
 
 
-# TODO: add comments and test code
-# NOTE: maybe change scheduler to one_cycle_lr
 class LightningModelWrapper(pl.LightningModule):
+    """
+    PyTorch Lightning module wrapper for graph neural networks.
+
+    Manages training, validation, and testing loops with automatic metric
+    calculation and logging to TensorBoard.
+    """
     def __init__(
         self,
         model: torch.nn.Module,
@@ -21,6 +30,17 @@ class LightningModelWrapper(pl.LightningModule):
         loss_fn: torch.nn.Module = torch.nn.MSELoss(),
         **metric_calc_kwargs,
     ):
+        """
+        Initialize the Lightning wrapper.
+
+        Args:
+            model: The GNN model to wrap
+            lr: Learning rate for optimizer
+            compile: Whether to use torch.compile for optimization
+            target_key: Key in graph data dict for target values (e.g., 'force', 'energy')
+            loss_fn: Loss function module
+            **metric_calc_kwargs: Arguments for RegressionMetricCalc
+        """
         super().__init__()
 
         self.model = model
@@ -28,10 +48,11 @@ class LightningModelWrapper(pl.LightningModule):
             self.model = torch.compile(self.model)
 
         self.target_key = target_key
-
         self.metric_calculator = RegressionMetricCalc(**metric_calc_kwargs)
         self.loss_fn = loss_fn
         self.lr = lr
+
+        # Storage for predictions and losses during each epoch
         self.step_outputs = defaultdict(
             lambda: {"y_pred": [], "y_true": [], "loss": []}
         )
@@ -40,25 +61,48 @@ class LightningModelWrapper(pl.LightningModule):
         )
 
     def forward(self, graph: Data):
+        """Forward pass through the model."""
         return self.model(graph)
 
     def _step(self, graph, step_type="train"):
+        """
+        Execute a single training/validation/test step.
+
+        Args:
+            graph: Input molecular graph
+            step_type: One of 'train', 'valid', 'test', or 'predict'
+
+        Returns:
+            Loss value for this step
+        """
         prediction = self.forward(graph)
         loss = self.loss_fn(prediction, graph[self.target_key])
 
+        # Accumulate predictions and losses for epoch-end metrics
         self.step_outputs[step_type]["y_pred"].append(prediction)
         self.step_outputs[step_type]["y_true"].append(graph[self.target_key])
         self.step_outputs[step_type]["loss"].append(loss)
         return loss
 
     def on_epoch_end(self, epoch_type):
+        """
+        Compute and log metrics at the end of each epoch.
+
+        Args:
+            epoch_type: One of 'train', 'valid', or 'test'
+        """
+        # Aggregate all step outputs
         avg_loss = torch.stack(
             [x for x in self.step_outputs[epoch_type]["loss"]]
         ).mean()
         y_pred = torch.cat([x for x in self.step_outputs[epoch_type]["y_pred"]])
         y_true = torch.cat([x for x in self.step_outputs[epoch_type]["y_true"]])
+
+        # Clear storage for next epoch
         for k in self.step_outputs[epoch_type].keys():
             self.step_outputs[epoch_type][k].clear()
+
+        # Calculate and log metrics
         metric_dict = self.metric_calculator(y_pred, y_true, epoch_type)
         metric_dict.update({f"{epoch_type}_MSE_loss": avg_loss})
         self.log_dict(metric_dict, on_step=False, on_epoch=True, prog_bar=True)
@@ -97,7 +141,7 @@ class LightningModelWrapper(pl.LightningModule):
             return self._step(batch, "test")
 
     def configure_optimizers(self):
+        """Configure Adam optimizer with exponential learning rate decay."""
         optimizer = Adam(self.parameters(), lr=self.lr, weight_decay=1e-3)
-        # scheduler = lr_scheduler.StepLR(optimizer=optimizer,step_size=300,gamma=0.1)
         scheduler = lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=1 - 1e-3)
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
