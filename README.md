@@ -50,13 +50,13 @@ Traditional simulation methods (DFT, MD) are computationally expensive. Machine 
 
 ## Key Features
 
-✅ **SE(3)-Equivariant Architectures**: O(3) Graph Attention Networks and MACE models
-✅ **Modular Design**: Easy to extend to new tasks and datasets
-✅ **Multiple Loss Functions**: MSE, MAE, Huber, and custom combinations
-✅ **PyTorch Lightning**: Organized training with automatic logging
-✅ **Extrapolation Testing**: Evaluate generalization to unseen molecules
-✅ **TensorBoard Integration**: Real-time training visualization
-✅ **Comprehensive Metrics**: R², RMSE, MAE for robust evaluation
+✅ **SE(3)-Equivariant Architectures**: O(3) Graph Attention Networks and MACE models <br>
+✅ **Modular Design**: Easy to extend to new tasks and datasets <br>
+✅ **Multiple Loss Functions**: MSE, MAE, Huber, and custom combinations <br>
+✅ **PyTorch Lightning**: Organized training with automatic logging <br>
+✅ **Extrapolation Testing**: Evaluate generalization to unseen molecules <br>
+✅ **TensorBoard Integration**: Real-time training visualization <br>
+✅ **Comprehensive Metrics**: R², RMSE, MAE for robust evaluation <br>
 
 ---
 
@@ -400,16 +400,6 @@ Models are evaluated using:
 - **RMSE**: Root Mean Squared Error
 - **R²**: Coefficient of determination
 
-### Expected Performance
-
-| Model | Force MAE | Force RMSE | R² |
-|-------|-----------|------------|-----|
-| O3 GAT (small) | ~0.15 | ~0.25 | 0.95 |
-| O3 GAT (large) | ~0.08 | ~0.15 | 0.98 |
-| MACE | ~0.05 | ~0.10 | 0.99 |
-| Standard GAT | ~0.25 | ~0.40 | 0.90 |
-
-*Note: These are approximate values; actual results depend on hyperparameters and training duration.*
 
 ### Visualization
 
@@ -533,10 +523,10 @@ If you use this code in your research, please cite:
 
 ```bibtex
 @mastersthesis{mirkovic2024equivariant,
-  title={Equivariant Graph Neural Networks for Molecular Dynamics},
+  title={Deep Learning Methods For Modeling Complex Systems},
   author={Mirkovic, Filip},
   year={2024},
-  school={[Your University]},
+  school={[Faculty of Science, University of Zagreb]},
   type={Master's Thesis}
 }
 ```
@@ -568,8 +558,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 For questions or collaborations:
 - GitHub Issues: [complex-sys-gnn/issues](https://github.com/mirxonius/complex-sys-gnn/issues)
-- Email: [Your Email]
-
 ---
 
 **Last Updated**: January 2026
